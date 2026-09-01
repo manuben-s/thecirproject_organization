@@ -5,26 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal del Equipo de Investigación</title>
   
-  <!-- Carga de Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* Paleta Modo Oscuro - Sobrio y profesional */
     :root {
-      --bg-color: #121212; /* Fondo principal muy oscuro */
-      --card-bg: #1e1e1e; /* Fondo de las tarjetas, ligeramente más claro */
-      --text-main: #e4e6eb; /* Texto blanco suave */
-      --text-muted: #a0a3a7; /* Texto secundario gris */
-      --border-color: #333333; /* Bordes sutiles */
-      --accent-color: #2c2f33; /* Gris de acento para botones */
-      --accent-hover: #3f434a; /* Hover de botones */
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --modal-bg: #282828;
+      --text-main: #e4e6eb;
+      --text-muted: #a0a3a7;
+      --border-color: #333333;
+      --accent-color: #2c2f33;
+      --accent-hover: #3f434a;
       
-      /* Colores de estado (Adaptados para modo oscuro) */
       --status-data-bg: rgba(66, 165, 245, 0.15); 
-      --status-data-text: #90caf9; /* Azul pastel */
-      
+      --status-data-text: #90caf9;
       --status-writing-bg: rgba(171, 71, 188, 0.15);
-      --status-writing-text: #ce93d8; /* Morado pastel */
+      --status-writing-text: #ce93d8;
+      --status-review-bg: rgba(255, 183, 77, 0.15);
+      --status-review-text: #ffe082;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,7 +36,6 @@
       line-height: 1.5;
     }
 
-    /* Cabecera y herramientas globales */
     header {
       display: flex;
       justify-content: space-between;
@@ -68,14 +66,12 @@
     .btn-primary { background: var(--text-main); color: var(--bg-color); border: none; }
     .btn-primary:hover { background: #c2c4c8; }
 
-    /* Layout del Árbol de Líneas (CSS Grid) */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 1.5rem;
     }
 
-    /* Tarjetas de cada línea */
     .card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
@@ -84,33 +80,31 @@
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      transition: border-color 0.2s;
     }
-
-    .card:hover { border-color: #555; }
 
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+      gap: 0.5rem;
     }
 
-    .card-title { font-size: 1.1rem; font-weight: 600; }
-    .researcher-name { font-size: 0.9rem; color: var(--text-muted); }
+    .card-title { font-size: 1.05rem; font-weight: 600; }
+    .researcher-name { font-size: 0.85rem; color: var(--text-muted); }
 
-    /* Etiquetas de Estado */
     .status-badge {
       font-size: 0.75rem;
       padding: 0.25rem 0.6rem;
       border-radius: 12px;
       font-weight: 600;
+      white-space: nowrap;
     }
-    .status-badge.processing { background-color: var(--status-data-bg); color: var(--status-data-text); border: 1px solid rgba(66,165,245,0.3); }
-    .status-badge.writing { background-color: var(--status-writing-bg); color: var(--status-writing-text); border: 1px solid rgba(171,71,188,0.3); }
+    .status-processing { background-color: var(--status-data-bg); color: var(--status-data-text); border: 1px solid rgba(66,165,245,0.3); }
+    .status-writing { background-color: var(--status-writing-bg); color: var(--status-writing-text); border: 1px solid rgba(171,71,188,0.3); }
+    .status-review { background-color: var(--status-review-bg); color: var(--status-review-text); border: 1px solid rgba(255,183,77,0.3); }
 
-    /* Bitácora / Diario */
     .log-preview {
-      background: rgba(0,0,0,0.2);
+      background: rgba(0,0,0,0.25);
       padding: 0.75rem;
       border-radius: 6px;
       font-size: 0.85rem;
@@ -118,29 +112,68 @@
       color: #c4c6c9;
     }
 
-    .log-preview strong { color: var(--text-main); }
-
     .card-actions {
       display: flex;
       gap: 0.5rem;
       margin-top: auto;
     }
 
-    /* Redes sociales */
-    .social-section {
-      margin-top: 3rem;
-      padding-top: 2rem;
-      border-top: 1px solid var(--border-color);
+    /* Modales (Ventanas superpuestas) */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .modal {
+      background: var(--modal-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .modal h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-group label { font-size: 0.85rem; color: var(--text-muted); }
+
+    .form-group input, .form-group select, .form-group textarea {
+      background: var(--bg-color);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.6rem;
+      border-radius: 6px;
+      font-family: inherit;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
 
-  <!-- Cabecera Global -->
   <header>
     <div>
       <h1>Organización de Investigación</h1>
-      <p style="color: var(--text-muted); margin-top: 0.3rem;">Panel de control del equipo (7 integrantes)</p>
+      <p style="color: var(--text-muted); margin-top: 0.3rem;">Panel de control del equipo (7 líneas)</p>
     </div>
     
     <div class="global-tools">
@@ -151,88 +184,147 @@
   </header>
 
   <main>
-    <!-- Contenedor dinámico de las tarjetas -->
     <div class="dashboard-grid" id="lines-container">
-      
-      <!-- NOTA: Estas tarjetas ahora están en HTML para ver el diseño. 
-           Pronto el JavaScript las borrará e inyectará las reales desde Supabase -->
-      
-      <article class="card">
-        <div class="card-header">
-          <div>
-            <h2 class="card-title">Procesamiento de Señales</h2>
-            <span class="researcher-name">Investigador 1</span>
-          </div>
-          <span class="status-badge processing">Procesamiento de datos</span>
-        </div>
-        <div class="log-preview">
-          <strong>Última actualización (Hoy):</strong><br>
-          Scripts de clasificación de clusters ajustados. Listo para revisar parámetros.
-        </div>
-        <div class="card-actions">
-          <a href="#" class="btn" style="flex: 1; text-align: center; font-size: 0.9rem;">Ver Línea</a>
-          <a href="#" class="btn" style="flex: 1; text-align: center; font-size: 0.9rem;">Meet Individual</a>
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="card-header">
-          <div>
-            <h2 class="card-title">Modelado Matemático</h2>
-            <span class="researcher-name">Investigador 2</span>
-          </div>
-          <span class="status-badge writing">En escritura</span>
-        </div>
-        <div class="log-preview">
-          <strong>Última actualización (Ayer):</strong><br>
-          Borrador de la introducción terminado. Enlace subido al Drive.
-        </div>
-        <div class="card-actions">
-          <a href="#" class="btn" style="flex: 1; text-align: center; font-size: 0.9rem;">Ver Línea</a>
-          <a href="#" class="btn" style="flex: 1; text-align: center; font-size: 0.9rem;">Meet Individual</a>
-        </div>
-      </article>
-      
+      <p style="color: var(--text-muted);">Cargando líneas de investigación...</p>
     </div>
-
-    <!-- Sección paralela: Difusión -->
-    <section class="social-section">
-      <h2>Difusión y Redes Sociales</h2>
-      <p style="color: var(--text-muted); margin-bottom: 1rem;">Borradores y logros listos para compartir.</p>
-      <div class="log-preview" style="border-left-color: #81c784;">
-        <strong>Nuevo Logro:</strong> "Póster aceptado para la conferencia anual. ¡Enlace al PDF disponible para feedback!" 
-        <a href="#" style="color: #81c784; text-decoration: none; font-weight: bold; margin-left: 10px;">Aprobar post</a>
-      </div>
-    </section>
   </main>
 
-  <!-- Lógica de Supabase -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+      <h3>Actualizar Línea de Investigación</h3>
+      <input type="hidden" id="edit-id">
+      
+      <div class="form-group">
+        <label>Investigador/a</label>
+        <input type="text" id="edit-investigador">
+      </div>
+
+      <div class="form-group">
+        <label>Título de la Línea</label>
+        <input type="text" id="edit-titulo">
+      </div>
+
+      <div class="form-group">
+        <label>Estado Actual</label>
+        <select id="edit-estado">
+          <option value="Recolección de datos">Recolección de datos</option>
+          <option value="Procesamiento de datos">Procesamiento de datos</option>
+          <option value="En escritura">En escritura</option>
+          <option value="En revisión">En revisión</option>
+          <option value="Publicado">Publicado</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Enlace de Meet Individual</label>
+        <input type="text" id="edit-meet">
+      </div>
+
+      <div class="form-group">
+        <label>Nueva entrada para la Bitácora / Diario</label>
+        <textarea id="edit-log" rows="3" placeholder="Escribe aquí las novedades del proyecto..."></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarCambios()">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // 1. Inicializar Supabase con tus credenciales reales
     const supabaseUrl = 'https://scszmpsfejbmrwzgjgtw.supabase.co';
     const supabaseKey = 'sb_publishable_aucqQqfo34REmhTysre1Og_u8I2JVgk';
     const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    // 2. Función de prueba para ver si conecta bien
-    async function testConexion() {
-      console.log("Conectando con Supabase...");
-      // Esto intentará leer una tabla llamada 'lineas_investigacion' (que crearemos en el siguiente paso)
-      const { data, error } = await supabase.from('lineas_investigacion').select('*');
-      
+    // Cargar las 7 líneas desde Supabase
+    async function cargarLineas() {
+      const container = document.getElementById('lines-container');
+      const { data, error } = await supabase.from('lineas_investigacion').select('*').order('created_at', { ascending: true });
+
       if (error) {
-        console.log("Supabase está conectado, pero la tabla aún no existe o hay un error de lectura. Es normal en este paso.");
+        container.innerHTML = `<p style="color: #ef5350;">Error al cargar datos: ${error.message}</p>`;
+        return;
+      }
+
+      container.innerHTML = '';
+
+      data.forEach(linea => {
+        let badgeClass = 'status-processing';
+        if (linea.estado_actual === 'En escritura') badgeClass = 'status-writing';
+        if (linea.estado_actual === 'En revisión') badgeClass = 'status-review';
+
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">${linea.titulo_linea}</h2>
+              <span class="researcher-name">${linea.nombre_investigador}</span>
+            </div>
+            <span class="status-badge ${badgeClass}">${linea.estado_actual}</span>
+          </div>
+          
+          <div class="log-preview">
+            <strong>Última actualización:</strong><br>
+            ${linea.ultima_actualizacion || 'Sin entradas recientes.'}
+          </div>
+
+          <div class="card-actions">
+            <a href="${linea.enlace_meet || '#'}" target="_blank" class="btn" style="flex: 1; text-align: center; font-size: 0.85rem;">🎥 Meet</a>
+            <button class="btn btn-primary" style="flex: 1; font-size: 0.85rem;" onclick="abrirModal('${linea.id}', '${escapeQuotes(linea.nombre_investigador)}', '${escapeQuotes(linea.titulo_linea)}', '${linea.estado_actual}', '${linea.enlace_meet || ''}', '${escapeQuotes(linea.ultima_actualizacion || '')}')">Editar</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function escapeQuotes(str) {
+      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    // Funciones de la ventana emergente (Modal)
+    function abrirModal(id, investigador, titulo, estado, meet, log) {
+      document.getElementById('edit-id').value = id;
+      document.getElementById('edit-investigador').value = investigador;
+      document.getElementById('edit-titulo').value = titulo;
+      document.getElementById('edit-estado').value = estado;
+      document.getElementById('edit-meet').value = meet;
+      document.getElementById('edit-log').value = log;
+      
+      document.getElementById('edit-modal').style.display = 'flex';
+    }
+
+    function cerrarModal() {
+      document.getElementById('edit-modal').style.display = 'none';
+    }
+
+    async function guardarCambios() {
+      const id = document.getElementById('edit-id').value;
+      const investigador = document.getElementById('edit-investigador').value;
+      const titulo = document.getElementById('edit-titulo').value;
+      const estado = document.getElementById('edit-estado').value;
+      const meet = document.getElementById('edit-meet').value;
+      const log = document.getElementById('edit-log').value;
+
+      const { error } = await supabase.from('lineas_investigacion').update({
+        nombre_investigador: investigador,
+        titulo_linea: titulo,
+        estado_actual: estado,
+        enlace_meet: meet,
+        ultima_actualizacion: log
+      }).eq('id', id);
+
+      if (error) {
+        alert('Error al guardar: ' + error.message);
       } else {
-        console.log("¡Datos recibidos!", data);
+        cerrarModal();
+        cargarLineas(); // Recargar la vista inmediatamente
       }
     }
 
-    // Ejecutar el test al cargar
-    testConexion();
-
-    // 3. Botón de Iniciar Sesión (Próximo paso)
-    document.getElementById('login-btn').addEventListener('click', () => {
-      alert("Aquí abriremos un popup minimalista para poner email y contraseña de tu equipo.");
-    });
+    // Cargar líneas al iniciar
+    cargarLineas();
   </script>
 </body>
 </html>
