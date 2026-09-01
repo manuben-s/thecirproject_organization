@@ -9,163 +9,53 @@
 
   <style>
     :root {
-      --bg-color: #121212;
-      --card-bg: #1e1e1e;
-      --modal-bg: #282828;
-      --text-main: #e4e6eb;
-      --text-muted: #a0a3a7;
-      --border-color: #333333;
-      --accent-color: #2c2f33;
-      --accent-hover: #3f434a;
-      
-      --status-data-bg: rgba(66, 165, 245, 0.15); 
-      --status-data-text: #90caf9;
-      --status-writing-bg: rgba(171, 71, 188, 0.15);
-      --status-writing-text: #ce93d8;
-      --status-review-bg: rgba(255, 183, 77, 0.15);
-      --status-review-text: #ffe082;
+      --bg-color: #121212; --card-bg: #1e1e1e; --modal-bg: #282828;
+      --text-main: #e4e6eb; --text-muted: #a0a3a7; --border-color: #333333;
+      --accent-color: #2c2f33; --accent-hover: #3f434a;
+      --status-data-bg: rgba(66, 165, 245, 0.15); --status-data-text: #90caf9;
+      --status-writing-bg: rgba(171, 71, 188, 0.15); --status-writing-text: #ce93d8;
+      --status-review-bg: rgba(255, 183, 77, 0.15); --status-review-text: #ffe082;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      padding: 2rem;
-      line-height: 1.5;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-bottom: 1.5rem;
-      border-bottom: 1px solid var(--border-color);
-      margin-bottom: 2rem;
-    }
-
-    .global-tools {
-      display: flex;
-      gap: 1rem;
-    }
-
-    .btn {
-      padding: 0.5rem 1rem;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      text-decoration: none;
-      color: var(--text-main);
-      background: var(--card-bg);
-      font-weight: 500;
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-
+    body { font-family: system-ui, sans-serif; background-color: var(--bg-color); color: var(--text-main); padding: 2rem; line-height: 1.5; }
+    header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 2rem; }
+    .global-tools { display: flex; gap: 1rem; }
+    .btn { padding: 0.5rem 1rem; border: 1px solid var(--border-color); border-radius: 6px; text-decoration: none; color: var(--text-main); background: var(--card-bg); font-weight: 500; cursor: pointer; }
     .btn:hover { background: var(--accent-hover); }
     .btn-primary { background: var(--text-main); color: var(--bg-color); border: none; }
     .btn-primary:hover { background: #c2c4c8; }
-
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
+    .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
     .card-title { font-size: 1.05rem; font-weight: 600; }
     .researcher-name { font-size: 0.85rem; color: var(--text-muted); }
-
-    .status-badge {
-      font-size: 0.75rem;
-      padding: 0.25rem 0.6rem;
-      border-radius: 12px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
+    .status-badge { font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 12px; font-weight: 600; white-space: nowrap; }
     .status-processing { background-color: var(--status-data-bg); color: var(--status-data-text); border: 1px solid rgba(66,165,245,0.3); }
     .status-writing { background-color: var(--status-writing-bg); color: var(--status-writing-text); border: 1px solid rgba(171,71,188,0.3); }
     .status-review { background-color: var(--status-review-bg); color: var(--status-review-text); border: 1px solid rgba(255,183,77,0.3); }
-
-    .log-preview {
-      background: rgba(0,0,0,0.25);
-      padding: 0.75rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      border-left: 3px solid var(--text-muted);
-      color: #c4c6c9;
-    }
-
-    .card-actions {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: auto;
-    }
-
-    /* Modales (Ventanas superpuestas) */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
-    }
-
-    .modal {
-      background: var(--modal-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 1.5rem;
-      width: 100%;
-      max-width: 480px;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .modal h3 { font-size: 1.2rem; margin-bottom: 0.5rem; }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
+    
+    .log-preview { background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; border-left: 3px solid var(--text-muted); color: #c4c6c9; cursor: pointer; transition: background 0.2s; }
+    .log-preview:hover { background: rgba(255,255,255,0.05); }
+    
+    .card-actions { display: flex; gap: 0.5rem; margin-top: auto; }
+    
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 100; }
+    .modal { background: var(--modal-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+    .modal h3 { font-size: 1.2rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
     .form-group label { font-size: 0.85rem; color: var(--text-muted); }
-
-    .form-group input, .form-group select, .form-group textarea {
-      background: var(--bg-color);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 0.6rem;
-      border-radius: 6px;
-      font-family: inherit;
-    }
-
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
+    .form-group input, .form-group select, .form-group textarea { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.6rem; border-radius: 6px; font-family: inherit; }
+    
+    /* Estilo para los campos bloqueados a los no-administradores */
+    input:disabled, select:disabled { opacity: 0.5; cursor: not-allowed; border-style: dashed; }
+    
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
+    
+    .history-list { display: flex; flex-direction: column; gap: 1rem; }
+    .history-item { padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+    .history-item:last-child { border-bottom: none; }
+    .history-meta { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.3rem; }
+    .history-text { font-size: 0.9rem; }
   </style>
 </head>
 <body>
@@ -173,37 +63,41 @@
   <header>
     <div>
       <h1>Organización de Investigación</h1>
-      <p style="color: var(--text-muted); margin-top: 0.3rem;">Panel de control del equipo (7 líneas)</p>
+      <p style="color: var(--text-muted); margin-top: 0.3rem;">Panel de control del equipo</p>
     </div>
-    
     <div class="global-tools">
       <a href="#" class="btn">📅 Calendario Global</a>
       <a href="#" class="btn btn-primary">🎥 Meet Grupal</a>
-      <button id="login-btn" class="btn">Iniciar Sesión</button>
+      <button id="login-btn" class="btn" onclick="abrirLogin()">Iniciar Sesión</button>
     </div>
   </header>
 
   <main>
     <div class="dashboard-grid" id="lines-container">
-      <p style="color: var(--text-muted);">Cargando líneas de investigación...</p>
+      <p style="color: var(--text-muted);">Cargando líneas...</p>
     </div>
   </main>
 
+  <div class="modal-overlay" id="login-modal">
+    <div class="modal">
+      <h3>Acceso Equipo</h3>
+      <div class="form-group"><label>Correo electrónico</label><input type="email" id="login-email"></div>
+      <div class="form-group"><label>Contraseña</label><input type="password" id="login-password"></div>
+      <p id="login-error" style="color: #ef5350; font-size: 0.85rem; display: none;"></p>
+      <div class="modal-actions">
+        <button class="btn" onclick="cerrarLogin()">Cancelar</button>
+        <button class="btn btn-primary" onclick="iniciarSesion()">Entrar</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="edit-modal">
     <div class="modal">
-      <h3>Actualizar Línea de Investigación</h3>
+      <h3>Añadir Actualización</h3>
       <input type="hidden" id="edit-id">
       
-      <div class="form-group">
-        <label>Investigador/a</label>
-        <input type="text" id="edit-investigador">
-      </div>
-
-      <div class="form-group">
-        <label>Título de la Línea</label>
-        <input type="text" id="edit-titulo">
-      </div>
-
+      <div class="form-group"><label>Investigador/a</label><input type="text" id="edit-investigador"></div>
+      <div class="form-group"><label>Título</label><input type="text" id="edit-titulo"></div>
       <div class="form-group">
         <label>Estado Actual</label>
         <select id="edit-estado">
@@ -214,47 +108,93 @@
           <option value="Publicado">Publicado</option>
         </select>
       </div>
-
+      <div class="form-group"><label>Enlace de Meet</label><input type="text" id="edit-meet"></div>
+      
       <div class="form-group">
-        <label>Enlace de Meet Individual</label>
-        <input type="text" id="edit-meet">
-      </div>
-
-      <div class="form-group">
-        <label>Nueva entrada para la Bitácora / Diario</label>
-        <textarea id="edit-log" rows="3" placeholder="Escribe aquí las novedades del proyecto..."></textarea>
+        <label>Añadir nueva nota a la Bitácora</label>
+        <textarea id="edit-log" rows="3" placeholder="Escribe tu actualización de hoy..."></textarea>
       </div>
 
       <div class="modal-actions">
-        <button class="btn" onclick="cerrarModal()">Cancelar</button>
-        <button class="btn btn-primary" onclick="guardarCambios()">Guardar Cambios</button>
+        <button class="btn" onclick="cerrarEdit()">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarCambios()">Guardar</button>
       </div>
     </div>
   </div>
 
- <script>
+  <div class="modal-overlay" id="history-modal">
+    <div class="modal">
+      <h3 id="history-title">Historial de Actualizaciones</h3>
+      <div id="history-content" class="history-list">
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Cargando historial...</p>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="cerrarHistorial()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ⚠️ ¡IMPORTANTE! ESCRIBE TU CORREO AQUÍ ⚠️
+    // La persona con este correo será la ÚNICA que podrá cambiar títulos, estados y meets.
+    const CORREO_ADMINISTRADORA = "paloma.manubens@gmail.com";
+
+
     const supabaseUrl = 'https://scszmpsfejbmrwzgjgtw.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjc3ptcHNmZWpibXJ3emdqZ3R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNTc0MzcsImV4cCI6MjEwMzgzMzQzN30.lN08jqs-AXHRLSSVVwasLRQJlZx4bjFaT8RR0Vf0pjE';
-    
-    // ¡Aquí está la corrección! Le llamamos clienteSupabase
     const clienteSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-    // Cargar las 7 líneas desde Supabase
+    let sesionActiva = false;
+    let usuarioEmail = "";
+
+    clienteSupabase.auth.onAuthStateChange((event, session) => {
+      sesionActiva = !!session;
+      usuarioEmail = session ? session.user.email : "";
+      
+      const loginBtn = document.getElementById('login-btn');
+      if (sesionActiva) {
+        loginBtn.textContent = 'Cerrar Sesión (' + usuarioEmail.split('@')[0] + ')';
+        loginBtn.onclick = cerrarSesion;
+      } else {
+        loginBtn.textContent = 'Iniciar Sesión';
+        loginBtn.onclick = abrirLogin;
+      }
+      cargarLineas();
+    });
+
+    function abrirLogin() { document.getElementById('login-modal').style.display = 'flex'; document.getElementById('login-error').style.display = 'none'; }
+    function cerrarLogin() { document.getElementById('login-modal').style.display = 'none'; }
+    
+    async function iniciarSesion() {
+      const email = document.getElementById('login-email').value.trim();
+      const pass = document.getElementById('login-password').value;
+      const { error } = await clienteSupabase.auth.signInWithPassword({ email, password: pass });
+      if (error) {
+        document.getElementById('login-error').textContent = 'Credenciales incorrectas.';
+        document.getElementById('login-error').style.display = 'block';
+      } else { cerrarLogin(); }
+    }
+    
+    async function cerrarSesion() { await clienteSupabase.auth.signOut(); }
+
     async function cargarLineas() {
       const container = document.getElementById('lines-container');
-      const { data, error } = await clienteSupabase.from('lineas_investigacion').select('*').order('created_at', { ascending: true });
+      
+      // AHORA ORDENAMOS POR EL NÚMERO DE LÍNEA
+      const { data, error } = await clienteSupabase.from('lineas_investigacion').select('*').order('numero_linea', { ascending: true });
 
-      if (error) {
-        container.innerHTML = `<p style="color: #ef5350;">Error al cargar datos: ${error.message}</p>`;
-        return;
-      }
-
+      if (error) return;
       container.innerHTML = '';
 
       data.forEach(linea => {
         let badgeClass = 'status-processing';
         if (linea.estado_actual === 'En escritura') badgeClass = 'status-writing';
         if (linea.estado_actual === 'En revisión') badgeClass = 'status-review';
+
+        let botonEditar = '';
+        if (sesionActiva) {
+          botonEditar = `<button class="btn btn-primary" style="flex: 1; font-size: 0.85rem;" onclick="abrirEdit('${linea.id}', '${escapeQuotes(linea.nombre_investigador)}', '${escapeQuotes(linea.titulo_linea)}', '${linea.estado_actual}', '${linea.enlace_meet || ''}')">Editar</button>`;
+        }
 
         const card = document.createElement('article');
         card.className = 'card';
@@ -267,66 +207,108 @@
             <span class="status-badge ${badgeClass}">${linea.estado_actual}</span>
           </div>
           
-          <div class="log-preview">
+          <div class="log-preview" onclick="abrirHistorial('${linea.id}', '${escapeQuotes(linea.titulo_linea)}')">
             <strong>Última actualización:</strong><br>
-            ${linea.ultima_actualizacion || 'Sin entradas recientes.'}
+            ${linea.ultima_actualizacion || 'Sin entradas en la bitácora.'}
+            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 6px;">👉 Clic para ver el historial</div>
           </div>
 
           <div class="card-actions">
             <a href="${linea.enlace_meet || '#'}" target="_blank" class="btn" style="flex: 1; text-align: center; font-size: 0.85rem;">🎥 Meet</a>
-            <button class="btn btn-primary" style="flex: 1; font-size: 0.85rem;" onclick="abrirModal('${linea.id}', '${escapeQuotes(linea.nombre_investigador)}', '${escapeQuotes(linea.titulo_linea)}', '${linea.estado_actual}', '${linea.enlace_meet || ''}', '${escapeQuotes(linea.ultima_actualizacion || '')}')">Editar</button>
+            ${botonEditar}
           </div>
         `;
         container.appendChild(card);
       });
     }
 
-    function escapeQuotes(str) {
-      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    }
+    function escapeQuotes(str) { return str ? str.replace(/'/g, "\\'").replace(/"/g, '&quot;') : ''; }
 
-    // Funciones de la ventana emergente (Modal)
-    function abrirModal(id, investigador, titulo, estado, meet, log) {
-      document.getElementById('edit-id').value = id;
-      document.getElementById('edit-investigador').value = investigador;
-      document.getElementById('edit-titulo').value = titulo;
-      document.getElementById('edit-estado').value = estado;
-      document.getElementById('edit-meet').value = meet;
-      document.getElementById('edit-log').value = log;
+    async function abrirHistorial(id, titulo) {
+      document.getElementById('history-title').textContent = 'Historial: ' + titulo;
+      document.getElementById('history-modal').style.display = 'flex';
+      const content = document.getElementById('history-content');
+      content.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Cargando historial...</p>';
+
+      const { data, error } = await clienteSupabase.from('bitacora').select('*').eq('linea_id', id).order('fecha', { ascending: false });
       
+      if (error || data.length === 0) {
+        content.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No hay notas guardadas aún.</p>';
+        return;
+      }
+
+      content.innerHTML = data.map(nota => {
+        const fechaFormat = new Date(nota.fecha).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+        return `
+          <div class="history-item">
+            <div class="history-meta">📅 ${fechaFormat} | ✍️ ${nota.autor.split('@')[0]}</div>
+            <div class="history-text">${nota.mensaje}</div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function cerrarHistorial() { document.getElementById('history-modal').style.display = 'none'; }
+
+    function abrirEdit(id, inv, tit, est, meet) {
+      document.getElementById('edit-id').value = id;
+      document.getElementById('edit-investigador').value = inv;
+      document.getElementById('edit-titulo').value = tit;
+      document.getElementById('edit-estado').value = est;
+      document.getElementById('edit-meet').value = meet;
+      document.getElementById('edit-log').value = "";
+      
+      // Control de roles: ¿Es administradora?
+      const esAdmin = (usuarioEmail === CORREO_ADMINISTRADORA);
+      
+      // Bloqueamos (o desbloqueamos) los campos según quién sea
+      document.getElementById('edit-investigador').disabled = !esAdmin;
+      document.getElementById('edit-titulo').disabled = !esAdmin;
+      document.getElementById('edit-estado').disabled = !esAdmin;
+      document.getElementById('edit-meet').disabled = !esAdmin;
+
       document.getElementById('edit-modal').style.display = 'flex';
     }
-
-    function cerrarModal() {
-      document.getElementById('edit-modal').style.display = 'none';
-    }
+    
+    function cerrarEdit() { document.getElementById('edit-modal').style.display = 'none'; }
 
     async function guardarCambios() {
       const id = document.getElementById('edit-id').value;
-      const investigador = document.getElementById('edit-investigador').value;
-      const titulo = document.getElementById('edit-titulo').value;
-      const estado = document.getElementById('edit-estado').value;
-      const meet = document.getElementById('edit-meet').value;
-      const log = document.getElementById('edit-log').value;
+      const nuevaNota = document.getElementById('edit-log').value.trim();
+      const esAdmin = (usuarioEmail === CORREO_ADMINISTRADORA);
+      
+      let updates = {};
 
-      const { error } = await clienteSupabase.from('lineas_investigacion').update({
-        nombre_investigador: investigador,
-        titulo_linea: titulo,
-        estado_actual: estado,
-        enlace_meet: meet,
-        ultima_actualizacion: log
-      }).eq('id', id);
-
-      if (error) {
-        alert('Error al guardar: ' + error.message);
-      } else {
-        cerrarModal();
-        cargarLineas(); // Recargar la vista inmediatamente
+      // Solo la administradora manda cambios en la estructura de la línea
+      if (esAdmin) {
+        updates.nombre_investigador = document.getElementById('edit-investigador').value;
+        updates.titulo_linea = document.getElementById('edit-titulo').value;
+        updates.estado_actual = document.getElementById('edit-estado').value;
+        updates.enlace_meet = document.getElementById('edit-meet').value;
       }
-    }
 
-    // Cargar líneas al iniciar
-    cargarLineas();
+      // Cualquiera (admin o miembro normal) puede actualizar la nota visible en la tarjeta
+      if (nuevaNota !== "") {
+        updates.ultima_actualizacion = nuevaNota;
+      }
+
+      // Si hay algo que actualizar en la tarjeta principal, lo enviamos
+      if (Object.keys(updates).length > 0) {
+        await clienteSupabase.from('lineas_investigacion').update(updates).eq('id', id);
+      }
+
+      // Si escribieron una nota nueva en la bitácora, la guardamos en el historial
+      if (nuevaNota !== "") {
+        await clienteSupabase.from('bitacora').insert({
+          linea_id: id,
+          autor: usuarioEmail,
+          mensaje: nuevaNota
+        });
+      }
+
+      cerrarEdit();
+      cargarLineas();
+    }
   </script>
 </body>
 </html>
