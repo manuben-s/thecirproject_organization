@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal del Equipo de Investigación</title>
+  
+  <!-- Carga de Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* Paleta Modo Oscuro - Sobrio y profesional */
+    :root {
+      --bg-color: #121212; /* Fondo principal muy oscuro */
+      --card-bg: #1e1e1e; /* Fondo de las tarjetas, ligeramente más claro */
+      --text-main: #e4e6eb; /* Texto blanco suave */
+      --text-muted: #a0a3a7; /* Texto secundario gris */
+      --border-color: #333333; /* Bordes sutiles */
+      --accent-color: #2c2f33; /* Gris de acento para botones */
+      --accent-hover: #3f434a; /* Hover de botones */
+      
+      /* Colores de estado (Adaptados para modo oscuro) */
+      --status-data-bg: rgba(66, 165, 245, 0.15); 
+      --status-data-text: #90caf9; /* Azul pastel */
+      
+      --status-writing-bg: rgba(171, 71, 188, 0.15);
+      --status-writing-text: #ce93d8; /* Morado pastel */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 2rem;
+      line-height: 1.5;
+    }
+
+    /* Cabecera y herramientas globales */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 2rem;
+    }
+
+    .global-tools {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--text-main);
+      background: var(--card-bg);
+      font-weight: 500;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .btn:hover { background: var(--accent-hover); }
+    .btn-primary { background: var(--text-main); color: var(--bg-color); border: none; }
+    .btn-primary:hover { background: #c2c4c8; }
+
+    /* Layout del Árbol de Líneas (CSS Grid) */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* Tarjetas de cada línea */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover { border-color: #555; }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .card-title { font-size: 1.1rem; font-weight: 600; }
+    .researcher-name { font-size: 0.9rem; color: var(--text-muted); }
+
+    /* Etiquetas de Estado */
+    .status-badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .status-badge.processing { background-color: var(--status-data-bg); color: var(--status-data-text); border: 1px solid rgba(66,165,245,0.3); }
+    .status-badge.writing { background-color: var(--status-writing-bg); color: var(--status-writing-text); border: 1px solid rgba(171,71,188,0.3); }
+
+    /* Bitácora / Diario */
+    .log-preview {
+      background: rgba(0,0,0,0.2);
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      border-left: 3px solid var(--text-muted);
+      color: #c4c6c9;
+    }
+
+    .log-preview strong { color: var(--text-main); }
+
+    .card-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: auto;
+    }
+
+    /* Redes sociales */
+    .social-section {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cabecera Global -->
+  <header>
+    <div>
+      <h1>Organización de Investigación</h1>
+      <p style="color: var(--text-muted); margin-top: 0.3rem;">Panel de control del equipo (7 integrantes)</p>
+    </div>
+    
+    <div class="global-tools">
+      <a href="#" class="btn">📅 Calendario Global</a>
+      <a href="#" class="btn btn-primary">🎥 Meet Grupal</a>
+      <button id="login-btn" class="btn">Iniciar Sesión</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Contenedor dinámico de las tarjetas -->
+    <div class="dashboard-grid" id="lines-container">
+      
+      <!-- NOTA: Estas tarjetas ahora están en HTML para ver el diseño. 
+           Pronto el JavaScript las borrará e inyectará las reales desde Supabase -->
+      
+      <article class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Procesamiento de Señales</h2>
+            <span class="researcher-name">Investigador 1</span>
+          </div>
+          <span class="status-badge processing">Procesamiento de datos</span>
+        </div>
+        <div class="log-preview">
+          <strong>Última actualización (Hoy):</strong><br>
+          Scripts de clasificación de clusters ajustados. Listo para revisar parámetros.
+        </div>
+        <div class="card-actions">
+          <a href="#" class="btn" style="flex: 1; text-align: center; font-size: 0.9rem;">Ver Línea</a>
+          <a href="#" class="btn" style="flex: 1; text-align: center; font-size: 0.9rem;">Meet Individual</a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Modelado Matemático</h2>
+            <span class="researcher-name">Investigador 2</span>
+          </div>
+          <span class="status-badge writing">En escritura</span>
+        </div>
+        <div class="log-preview">
+          <strong>Última actualización (Ayer):</strong><br>
+          Borrador de la introducción terminado. Enlace subido al Drive.
+        </div>
+        <div class="card-actions">
+          <a href="#" class="btn" style="flex: 1; text-align: center; font-size: 0.9rem;">Ver Línea</a>
+          <a href="#" class="btn" style="flex: 1; text-align: center; font-size: 0.9rem;">Meet Individual</a>
+        </div>
+      </article>
+      
+    </div>
+
+    <!-- Sección paralela: Difusión -->
+    <section class="social-section">
+      <h2>Difusión y Redes Sociales</h2>
+      <p style="color: var(--text-muted); margin-bottom: 1rem;">Borradores y logros listos para compartir.</p>
+      <div class="log-preview" style="border-left-color: #81c784;">
+        <strong>Nuevo Logro:</strong> "Póster aceptado para la conferencia anual. ¡Enlace al PDF disponible para feedback!" 
+        <a href="#" style="color: #81c784; text-decoration: none; font-weight: bold; margin-left: 10px;">Aprobar post</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Lógica de Supabase -->
+  <script>
+    // 1. Inicializar Supabase con tus credenciales reales
+    const supabaseUrl = 'https://scszmpsfejbmrwzgjgtw.supabase.co';
+    const supabaseKey = 'sb_publishable_aucqQqfo34REmhTysre1Og_u8I2JVgk';
+    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+    // 2. Función de prueba para ver si conecta bien
+    async function testConexion() {
+      console.log("Conectando con Supabase...");
+      // Esto intentará leer una tabla llamada 'lineas_investigacion' (que crearemos en el siguiente paso)
+      const { data, error } = await supabase.from('lineas_investigacion').select('*');
+      
+      if (error) {
+        console.log("Supabase está conectado, pero la tabla aún no existe o hay un error de lectura. Es normal en este paso.");
+      } else {
+        console.log("¡Datos recibidos!", data);
+      }
+    }
+
+    // Ejecutar el test al cargar
+    testConexion();
+
+    // 3. Botón de Iniciar Sesión (Próximo paso)
+    document.getElementById('login-btn').addEventListener('click', () => {
+      alert("Aquí abriremos un popup minimalista para poner email y contraseña de tu equipo.");
+    });
+  </script>
+</body>
+</html>
