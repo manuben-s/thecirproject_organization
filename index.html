@@ -12,10 +12,20 @@
       --bg-color: #121212; --card-bg: #1e1e1e; --modal-bg: #282828;
       --text-main: #e4e6eb; --text-muted: #a0a3a7; --border-color: #333333;
       --accent-color: #2c2f33; --accent-hover: #3f434a;
+      
       --status-data-bg: rgba(66, 165, 245, 0.15); --status-data-text: #90caf9;
       --status-writing-bg: rgba(171, 71, 188, 0.15); --status-writing-text: #ce93d8;
       --status-review-bg: rgba(255, 183, 77, 0.15); --status-review-text: #ffe082;
+
+      /* Colores distintivos para el código de colores de cada línea */
+      --color-general: #78909c;
+      --color-l1: #26a69a; /* Ovnis - Verde agua */
+      --color-l2: #ab47bc; /* EEG - Morado */
+      --color-l3: #ffa726; /* Predicción - Naranja */
+      --color-l4: #42a5f5; /* CIR 3D - Azul */
+      --color-l5: #ec407a; /* Ephys - Rosa */
     }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, sans-serif; background-color: var(--bg-color); color: var(--text-main); padding: 2rem; line-height: 1.5; }
     header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 2rem; }
@@ -26,34 +36,25 @@
     .btn-primary:hover { background: #c2c4c8; }
     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
     
-    /* Arreglo de tarjetas para que midan lo mismo */
     .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; height: 100%; }
     .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
     .card-title { font-size: 1.05rem; font-weight: 600; }
     .researcher-name { font-size: 0.85rem; color: var(--text-muted); }
+    
     .status-badge { font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 12px; font-weight: 600; white-space: nowrap; }
     .status-processing { background-color: var(--status-data-bg); color: var(--status-data-text); border: 1px solid rgba(66,165,245,0.3); }
     .status-writing { background-color: var(--status-writing-bg); color: var(--status-writing-text); border: 1px solid rgba(171,71,188,0.3); }
     .status-review { background-color: var(--status-review-bg); color: var(--status-review-text); border: 1px solid rgba(255,183,77,0.3); }
     
-    /* Arreglo para que las notas largas no descoloquen la tarjeta */
-    .log-preview { background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; border-left: 3px solid var(--text-muted); color: #c4c6c9; cursor: pointer; transition: background 0.2s; display: flex; flex-direction: column; flex-grow: 1; }
-    .log-preview:hover { background: rgba(255,255,255,0.05); }
-    .log-text { 
-      margin: 6px 0; 
-      display: -webkit-box; 
-      -webkit-line-clamp: 3; /* Oculta el texto a partir de la 3ª línea */
-      -webkit-box-orient: vertical; 
-      overflow: hidden; 
-      text-overflow: ellipsis; 
-      word-break: break-word;
-    }
+    .log-preview { background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; border-left: 3px solid var(--text-muted); color: var(--text-muted); cursor: pointer; transition: background 0.2s; display: flex; flex-direction: column; flex-grow: 1; }
+    .log-preview:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
+    .log-text { margin: 6px 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word; color: var(--text-main); }
     .log-hint { font-size: 0.7rem; color: var(--text-muted); margin-top: auto; padding-top: 4px; }
     
     .card-actions { display: flex; gap: 0.5rem; margin-top: auto; }
     
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 100; }
-    .modal { background: var(--modal-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+    .modal { background: var(--modal-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
     .modal h3 { font-size: 1.2rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
     .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
     .form-group label { font-size: 0.85rem; color: var(--text-muted); }
@@ -61,14 +62,19 @@
     input:disabled, select:disabled { opacity: 0.5; cursor: not-allowed; border-style: dashed; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
     
+    /* Estilos del Calendario Global */
+    .calendar-event { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.03); border-left: 4px solid #fff; margin-bottom: 0.5rem; }
+    .event-info { display: flex; flex-direction: column; gap: 0.2rem; }
+    .event-title { font-weight: 600; font-size: 0.95rem; }
+    .event-date { font-size: 0.75rem; color: var(--text-muted); }
+    .event-tag { font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 4px; display: inline-block; width: fit-content; font-weight: bold; color: #121212; }
+    
     .history-list { display: flex; flex-direction: column; gap: 1rem; }
     .history-item { padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
     .history-item:last-child { border-bottom: none; }
     .history-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem; }
-    .btn-delete { background: transparent; border: 1px solid #ef5350; color: #ef5350; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; cursor: pointer; transition: 0.2s; }
+    .btn-delete { background: transparent; border: 1px solid #ef5350; color: #ef5350; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; cursor: pointer; }
     .btn-delete:hover { background: rgba(239, 83, 80, 0.1); }
-    
-    /* Arreglo para respetar saltos de línea y palabras largas en el historial */
     .history-text { font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; }
   </style>
 </head>
@@ -80,17 +86,18 @@
       <p style="color: var(--text-muted); margin-top: 0.3rem;">Panel de control del equipo</p>
     </div>
     <div class="global-tools">
-      <a href="#" class="btn">📅 Calendario Global</a>
+      <button class="btn" onclick="abrirCalendario()">📅 Calendario Global</button>
       <button id="login-btn" class="btn" onclick="abrirLogin()">Iniciar Sesión</button>
     </div>
   </header>
 
   <main>
     <div class="dashboard-grid" id="lines-container">
-      <p style="color: var(--text-muted);">Cargando líneas...</p>
+      <p style="color: var(--text-muted);">Cargando organización...</p>
     </div>
   </main>
 
+  <!-- Modal LOGIN -->
   <div class="modal-overlay" id="login-modal">
     <div class="modal">
       <h3>Acceso Equipo</h3>
@@ -104,14 +111,15 @@
     </div>
   </div>
 
+  <!-- Modal EDICIÓN TARJETA -->
   <div class="modal-overlay" id="edit-modal">
     <div class="modal">
-      <h3>Añadir Actualización</h3>
+      <h3>Actualizar Espacio</h3>
       <input type="hidden" id="edit-id">
       
       <div class="form-group"><label>Investigador/a</label><input type="text" id="edit-investigador"></div>
       <div class="form-group"><label>Título</label><input type="text" id="edit-titulo"></div>
-      <div class="form-group">
+      <div class="form-group" id="estado-group">
         <label>Estado Actual</label>
         <select id="edit-estado">
           <option value="Recolección de datos">Recolección de datos</option>
@@ -125,7 +133,7 @@
       
       <div class="form-group">
         <label>Añadir nueva nota a la Bitácora</label>
-        <textarea id="edit-log" rows="4" placeholder="Escribe tu actualización. Puedes usar Enter para separar párrafos..."></textarea>
+        <textarea id="edit-log" rows="4" placeholder="Escribe tu actualización..."></textarea>
       </div>
 
       <div class="modal-actions">
@@ -135,6 +143,7 @@
     </div>
   </div>
 
+  <!-- Modal HISTORIAL BITÁCORA -->
   <div class="modal-overlay" id="history-modal">
     <div class="modal">
       <h3 id="history-title">Historial de Actualizaciones</h3>
@@ -147,6 +156,43 @@
     </div>
   </div>
 
+  <!-- Modal CALENDARIO GLOBAL -->
+  <div class="modal-overlay" id="calendar-modal">
+    <div class="modal" style="max-width: 600px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+        <h3 style="border: none; margin: 0; padding: 0;">📅 Calendario de Reuniones</h3>
+        <button class="btn btn-primary" id="btn-nueva-reunion" style="font-size: 0.8rem; display: none;" onclick="abrirCrearReunion()">+ Agendar Reunión</button>
+      </div>
+      
+      <div id="calendar-events-list" style="max-height: 350px; overflow-y: auto; display: flex; flexDirection: column; gap: 0.5rem;">
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Cargando reuniones...</p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn" onclick="cerrarCalendario()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal CREAR REUNIÓN -->
+  <div class="modal-overlay" id="new-event-modal">
+    <div class="modal" style="max-width: 400px;">
+      <h3>Agendar Nueva Reunión</h3>
+      <div class="form-group"><label>Título del Evento / Motivo</label><input type="text" id="event-title" placeholder="Ej: Revisión de datos"></div>
+      <div class="form-group"><label>Fecha y Hora</label><input type="datetime-local" id="event-datetime"></div>
+      <div class="form-group">
+        <label>Asociar a Línea de Investigación</label>
+        <select id="event-line-select">
+          <!-- Se rellena dinámicamente -->
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" onclick="cerrarCrearReunion()">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarReunion()">Agendar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const CORREO_ADMINISTRADORA = "pmanuben@ucm.es";
     const supabaseUrl = 'https://scszmpsfejbmrwzgjgtw.supabase.co';
@@ -155,6 +201,7 @@
 
     let sesionActiva = false;
     let usuarioEmail = "";
+    let lineasCache = []; // Guardamos las líneas para usarlas en el selector de eventos
 
     clienteSupabase.auth.onAuthStateChange((event, session) => {
       sesionActiva = !!session;
@@ -186,37 +233,58 @@
     
     async function cerrarSesion() { await clienteSupabase.auth.signOut(); }
 
+    // Función auxiliar para asignar el color según el número de línea
+    function obtenerColorLinea(num) {
+      switch(num) {
+        case 0: return 'var(--color-general)';
+        case 1: return 'var(--color-l1)';
+        case 2: return 'var(--color-l2)';
+        case 3: return 'var(--color-l3)';
+        case 4: return 'var(--color-l4)';
+        case 5: return 'var(--color-l5)';
+        default: return '#78909c';
+      }
+    }
+
     async function cargarLineas() {
       const container = document.getElementById('lines-container');
       const { data, error } = await clienteSupabase.from('lineas_investigacion').select('*').order('numero_linea', { ascending: true });
 
       if (error) return;
+      lineasCache = data; // Guardamos en caché
       container.innerHTML = '';
 
       data.forEach(linea => {
-        let badgeClass = 'status-processing';
-        if (linea.estado_actual === 'En escritura') badgeClass = 'status-writing';
-        if (linea.estado_actual === 'En revisión') badgeClass = 'status-review';
+        let badgeHTML = '';
+        if (linea.numero_linea > 0) {
+          let badgeClass = 'status-processing';
+          if (linea.estado_actual === 'En escritura') badgeClass = 'status-writing';
+          if (linea.estado_actual === 'En revisión') badgeClass = 'status-review';
+          badgeHTML = `<span class="status-badge ${badgeClass}">${linea.estado_actual}</span>`;
+        }
 
         let botonEditar = '';
         if (sesionActiva) {
-          botonEditar = `<button class="btn btn-primary" style="flex: 1; font-size: 0.85rem;" onclick="abrirEdit('${linea.id}', '${escapeQuotes(linea.nombre_investigador)}', '${escapeQuotes(linea.titulo_linea)}', '${linea.estado_actual}', '${linea.enlace_meet || ''}')">Editar</button>`;
+          botonEditar = `<button class="btn btn-primary" style="flex: 1; font-size: 0.85rem;" onclick="abrirEdit('${linea.id}', '${escapeQuotes(linea.nombre_investigador)}', '${escapeQuotes(linea.titulo_linea)}', '${linea.estado_actual}', '${linea.enlace_meet || ''}', ${linea.numero_linea})">Editar</button>`;
         }
+
+        const colorLinea = obtenerColorLinea(linea.numero_linea);
 
         const card = document.createElement('article');
         card.className = 'card';
+        card.style.borderTop = `4px solid ${colorLinea}`;
         card.innerHTML = `
           <div class="card-header">
             <div>
               <h2 class="card-title">${linea.titulo_linea}</h2>
               <span class="researcher-name">${linea.nombre_investigador}</span>
             </div>
-            <span class="status-badge ${badgeClass}">${linea.estado_actual}</span>
+            ${badgeHTML}
           </div>
           
           <div class="log-preview" onclick="abrirHistorial('${linea.id}', '${escapeQuotes(linea.titulo_linea)}')">
             <strong>Última actualización:</strong>
-            <div class="log-text">${linea.ultima_actualizacion || 'Sin entradas en la bitácora.'}</div>
+            <div class="log-text">${linea.ultima_actualizacion || ''}</div>
             <div class="log-hint">👉 Clic para ver el historial</div>
           </div>
 
@@ -231,6 +299,7 @@
 
     function escapeQuotes(str) { return str ? str.replace(/'/g, "\\'").replace(/"/g, '&quot;') : ''; }
 
+    // HISTORIAL Y BITÁCORA
     async function abrirHistorial(id, titulo) {
       document.getElementById('history-title').textContent = 'Historial: ' + titulo;
       document.getElementById('history-modal').style.display = 'flex';
@@ -239,12 +308,7 @@
 
       const { data, error } = await clienteSupabase.from('bitacora').select('*').eq('linea_id', id).order('fecha', { ascending: false });
       
-      if (error) {
-        content.innerHTML = `<p style="color: #ef5350; font-size: 0.9rem;">Error al leer base de datos: ${error.message}</p>`;
-        return;
-      }
-      
-      if (!data || data.length === 0) {
+      if (error || !data || data.length === 0) {
         content.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No hay notas guardadas aún.</p>';
         return;
       }
@@ -266,22 +330,16 @@
         `;
       }).join('');
     }
-    
     function cerrarHistorial() { document.getElementById('history-modal').style.display = 'none'; }
 
     async function borrarNota(notaId, lineaId, titulo) {
-      if (!confirm('¿Seguro que quieres borrar esta actualización?')) return;
-      
+      if (!confirm('¿Borrar esta actualización?')) return;
       const { error } = await clienteSupabase.from('bitacora').delete().eq('id', notaId);
-      if (error) {
-        alert('Error al borrar: ' + error.message);
-      } else {
-        abrirHistorial(lineaId, titulo); // Recarga el panel
-        cargarLineas(); // Recarga la tarjeta de fondo
-      }
+      if (!error) abrirHistorial(lineaId, titulo);
     }
 
-    function abrirEdit(id, inv, tit, est, meet) {
+    // EDICIÓN TARJETA
+    function abrirEdit(id, inv, tit, est, meet, numLinea) {
       document.getElementById('edit-id').value = id;
       document.getElementById('edit-investigador').value = inv;
       document.getElementById('edit-titulo').value = tit;
@@ -290,55 +348,134 @@
       document.getElementById('edit-log').value = "";
       
       const esAdmin = (usuarioEmail === CORREO_ADMINISTRADORA);
-      
       document.getElementById('edit-investigador').disabled = !esAdmin;
       document.getElementById('edit-titulo').disabled = !esAdmin;
-      document.getElementById('edit-estado').disabled = !esAdmin;
       document.getElementById('edit-meet').disabled = !esAdmin;
+
+      // La tarjeta General (num 0) no tiene estado
+      if (numLinea === 0) {
+        document.getElementById('estado-group').style.display = 'none';
+      } else {
+        document.getElementById('estado-group').style.display = 'flex';
+        document.getElementById('edit-estado').disabled = !esAdmin;
+      }
 
       document.getElementById('edit-modal').style.display = 'flex';
     }
-    
     function cerrarEdit() { document.getElementById('edit-modal').style.display = 'none'; }
 
     async function guardarCambios() {
       const id = document.getElementById('edit-id').value;
       const nuevaNota = document.getElementById('edit-log').value.trim();
       const esAdmin = (usuarioEmail === CORREO_ADMINISTRADORA);
-      
       let updates = {};
 
       if (esAdmin) {
         updates.nombre_investigador = document.getElementById('edit-investigador').value;
         updates.titulo_linea = document.getElementById('edit-titulo').value;
-        updates.estado_actual = document.getElementById('edit-estado').value;
         updates.enlace_meet = document.getElementById('edit-meet').value;
+        const selectEstado = document.getElementById('edit-estado');
+        if (selectEstado.style.display !== 'none') updates.estado_actual = selectEstado.value;
       }
 
+      // Si la nota está vacía, dejamos que la última actualización se mantenga o borre si se desea limpiar
       if (nuevaNota !== "") {
         updates.ultima_actualizacion = nuevaNota;
       }
 
-      // Guardamos la tarjeta
       if (Object.keys(updates).length > 0) {
         await clienteSupabase.from('lineas_investigacion').update(updates).eq('id', id);
       }
 
-      // Guardamos la bitácora (Con alerta si falla por seguridad)
       if (nuevaNota !== "") {
-        const { error: errInsert } = await clienteSupabase.from('bitacora').insert({
-          linea_id: id,
-          autor: usuarioEmail,
-          mensaje: nuevaNota
-        });
-        
-        if (errInsert) {
-          alert("Error: Supabase ha bloqueado la nota. Motivo: " + errInsert.message);
-        }
+        await clienteSupabase.from('bitacora').insert({ linea_id: id, autor: usuarioEmail, mensaje: nuevaNota });
       }
 
       cerrarEdit();
       cargarLineas();
+    }
+
+    // CALENDARIO GLOBAL
+    async function abrirCalendario() {
+      document.getElementById('calendar-modal').style.display = 'flex';
+      const btnNueva = document.getElementById('btn-nueva-reunion');
+      btnNueva.style.display = sesionActiva ? 'block' : 'none';
+      
+      const lista = document.getElementById('calendar-events-list');
+      lista.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Cargando reuniones...</p>';
+
+      const { data, error } = await clienteSupabase.from('reuniones').select('*, lineas_investigacion(titulo_linea, enlace_meet, numero_linea)').order('fecha_hora', { ascending: true });
+
+      if (error || !data || data.length === 0) {
+        lista.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No hay reuniones agendadas próximamente.</p>';
+        return;
+      }
+
+      const esAdmin = (usuarioEmail === CORREO_ADMINISTRADORA);
+
+      lista.innerHTML = data.map(rev => {
+        const fechaRev = new Date(rev.fecha_hora).toLocaleString('es-ES', { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+        const lineaInfo = rev.lineas_investigacion || { titulo_linea: 'General', enlace_meet: '#', numero_linea: 0 };
+        const colorLinea = obtenerColorLinea(lineaInfo.numero_linea);
+
+        let botonBorrarReunion = esAdmin ? `<button class="btn-delete" onclick="borrarReunion('${rev.id}')">🗑️ Borrar</button>` : '';
+
+        return `
+          <div class="calendar-event" style="border-left-color: ${colorLinea};">
+            <div class="event-info">
+              <span class="event-tag" style="background-color: ${colorLinea};">${lineaInfo.titulo_linea}</span>
+              <span class="event-title">${rev.titulo}</span>
+              <span class="event-date">📅 ${fechaRev}</span>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <a href="${lineaInfo.enlace_meet || '#'}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">🎥 Unirse al Meet</a>
+              ${botonBorrarReunion}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function cerrarCalendario() { document.getElementById('calendar-modal').style.display = 'none'; }
+
+    async function abrirCrearReunion() {
+      const select = document.getElementById('event-line-select');
+      select.innerHTML = lineasCache.map(l => `<option value="${l.id}">${l.titulo_linea}</option>`).join('');
+      document.getElementById('event-title').value = '';
+      document.getElementById('event-datetime').value = '';
+      document.getElementById('new-event-modal').style.display = 'flex';
+    }
+
+    function cerrarCrearReunion() { document.getElementById('new-event-modal').style.display = 'none'; }
+
+    async function guardarReunion() {
+      const titulo = document.getElementById('event-title').value.trim();
+      const fechaHora = document.getElementById('event-datetime').value;
+      const lineaId = document.getElementById('event-line-select').value;
+
+      if (!titulo || !fechaHora) {
+        alert('Rellena el título y la fecha/hora.');
+        return;
+      }
+
+      const { error } = await clienteSupabase.from('reuniones').insert({
+        titulo: titulo,
+        fecha_hora: fechaHora,
+        linea_id: lineaId
+      });
+
+      if (error) {
+        alert('Error al agendar: ' + error.message);
+      } else {
+        cerrarCrearReunion();
+        abrirCalendario(); // Recarga la lista de eventos
+      }
+    }
+
+    async function borrarReunion(id) {
+      if (!confirm('¿Eliminar esta reunión del calendario?')) return;
+      const { error } = await clienteSupabase.from('reuniones').delete().eq('id', id);
+      if (!error) abrirCalendario();
     }
   </script>
 </body>
