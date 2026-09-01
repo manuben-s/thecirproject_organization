@@ -232,15 +232,17 @@
     </div>
   </div>
 
-  <script>
+ <script>
     const supabaseUrl = 'https://scszmpsfejbmrwzgjgtw.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjc3ptcHNmZWpibXJ3emdqZ3R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNTc0MzcsImV4cCI6MjEwMzgzMzQzN30.lN08jqs-AXHRLSSVVwasLRQJlZx4bjFaT8RR0Vf0pjE';
-    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    
+    // ¡Aquí está la corrección! Le llamamos clienteSupabase
+    const clienteSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
     // Cargar las 7 líneas desde Supabase
     async function cargarLineas() {
       const container = document.getElementById('lines-container');
-      const { data, error } = await supabase.from('lineas_investigacion').select('*').order('created_at', { ascending: true });
+      const { data, error } = await clienteSupabase.from('lineas_investigacion').select('*').order('created_at', { ascending: true });
 
       if (error) {
         container.innerHTML = `<p style="color: #ef5350;">Error al cargar datos: ${error.message}</p>`;
@@ -307,7 +309,7 @@
       const meet = document.getElementById('edit-meet').value;
       const log = document.getElementById('edit-log').value;
 
-      const { error } = await supabase.from('lineas_investigacion').update({
+      const { error } = await clienteSupabase.from('lineas_investigacion').update({
         nombre_investigador: investigador,
         titulo_linea: titulo,
         estado_actual: estado,
