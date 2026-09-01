@@ -17,13 +17,16 @@
       --status-writing-bg: rgba(171, 71, 188, 0.15); --status-writing-text: #ce93d8;
       --status-review-bg: rgba(255, 183, 77, 0.15); --status-review-text: #ffe082;
 
-      /* Colores distintivos para el código de colores de cada línea */
+      /* Colores distintivos para las líneas de investigación */
       --color-general: #78909c;
-      --color-l1: #26a69a; /* Ovnis - Verde agua */
-      --color-l2: #ab47bc; /* EEG - Morado */
-      --color-l3: #ffa726; /* Predicción - Naranja */
-      --color-l4: #42a5f5; /* CIR 3D - Azul */
-      --color-l5: #ec407a; /* Ephys - Rosa */
+      --color-l1: #26a69a; /* Ovnis */
+      --color-l2: #ab47bc; /* EEG humanos */
+      --color-l3: #ffa726; /* Predicción */
+      --color-l4: #42a5f5; /* CIR 3D */
+      --color-l5: #ec407a; /* Ephys David */
+
+      /* Color conjunto para Conferencias y Eventos (Gonzalo, Paloma y Tyssa) */
+      --color-events: #66bb6a; /* Verde brillante unificado */
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,6 +37,7 @@
     .btn:hover { background: var(--accent-hover); }
     .btn-primary { background: var(--text-main); color: var(--bg-color); border: none; }
     .btn-primary:hover { background: #c2c4c8; }
+    
     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
     
     .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; height: 100%; }
@@ -53,6 +57,10 @@
     
     .card-actions { display: flex; gap: 0.5rem; margin-top: auto; }
     
+    /* Sección paralela de Difusión y Redes */
+    .diffusion-section { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border-color); }
+    .diffusion-section h2 { margin-bottom: 1.5rem; font-size: 1.3rem; }
+
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 100; }
     .modal { background: var(--modal-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
     .modal h3 { font-size: 1.2rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
@@ -62,7 +70,6 @@
     input:disabled, select:disabled { opacity: 0.5; cursor: not-allowed; border-style: dashed; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
     
-    /* Estilos del Calendario Global */
     .calendar-event { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.03); border-left: 4px solid #fff; margin-bottom: 0.5rem; }
     .event-info { display: flex; flex-direction: column; gap: 0.2rem; }
     .event-title { font-weight: 600; font-size: 0.95rem; }
@@ -92,9 +99,18 @@
   </header>
 
   <main>
+    <!-- Líneas de Investigación (Del 0 al 5) -->
     <div class="dashboard-grid" id="lines-container">
       <p style="color: var(--text-muted);">Cargando organización...</p>
     </div>
+
+    <!-- Sección paralela: Difusión y Redes Sociales -->
+    <section class="diffusion-section">
+      <h2>Difusión, Redes y Eventos</h2>
+      <div class="dashboard-grid" id="diffusion-container">
+        <!-- Se cargará dinámicamente -->
+      </div>
+    </section>
   </main>
 
   <!-- Modal LOGIN -->
@@ -111,13 +127,13 @@
     </div>
   </div>
 
-  <!-- Modal EDICIÓN TARJETA -->
+  <!-- Modal EDICIÓN -->
   <div class="modal-overlay" id="edit-modal">
     <div class="modal">
       <h3>Actualizar Espacio</h3>
       <input type="hidden" id="edit-id">
       
-      <div class="form-group"><label>Investigador/a</label><input type="text" id="edit-investigador"></div>
+      <div class="form-group"><label>Investigador/a / Responsable</label><input type="text" id="edit-investigador"></div>
       <div class="form-group"><label>Título</label><input type="text" id="edit-titulo"></div>
       <div class="form-group" id="estado-group">
         <label>Estado Actual</label>
@@ -127,9 +143,10 @@
           <option value="En escritura">En escritura</option>
           <option value="En revisión">En revisión</option>
           <option value="Publicado">Publicado</option>
+          <option value="Activo">Activo</option>
         </select>
       </div>
-      <div class="form-group"><label>Enlace de Meet</label><input type="text" id="edit-meet"></div>
+      <div class="form-group"><label>Enlace de Meet / Enlace Externo</label><input type="text" id="edit-meet"></div>
       
       <div class="form-group">
         <label>Añadir nueva nota a la Bitácora</label>
@@ -143,7 +160,7 @@
     </div>
   </div>
 
-  <!-- Modal HISTORIAL BITÁCORA -->
+  <!-- Modal HISTORIAL -->
   <div class="modal-overlay" id="history-modal">
     <div class="modal">
       <h3 id="history-title">Historial de Actualizaciones</h3>
@@ -156,7 +173,7 @@
     </div>
   </div>
 
-  <!-- Modal CALENDARIO GLOBAL -->
+  <!-- Modal CALENDARIO -->
   <div class="modal-overlay" id="calendar-modal">
     <div class="modal" style="max-width: 600px;">
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
@@ -164,7 +181,7 @@
         <button class="btn btn-primary" id="btn-nueva-reunion" style="font-size: 0.8rem; display: none;" onclick="abrirCrearReunion()">+ Agendar Reunión</button>
       </div>
       
-      <div id="calendar-events-list" style="max-height: 350px; overflow-y: auto; display: flex; flexDirection: column; gap: 0.5rem;">
+      <div id="calendar-events-list" style="max-height: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem;">
         <p style="color: var(--text-muted); font-size: 0.9rem;">Cargando reuniones...</p>
       </div>
 
@@ -178,13 +195,11 @@
   <div class="modal-overlay" id="new-event-modal">
     <div class="modal" style="max-width: 400px;">
       <h3>Agendar Nueva Reunión</h3>
-      <div class="form-group"><label>Título del Evento / Motivo</label><input type="text" id="event-title" placeholder="Ej: Revisión de datos"></div>
+      <div class="form-group"><label>Título del Evento / Motivo</label><input type="text" id="event-title"></div>
       <div class="form-group"><label>Fecha y Hora</label><input type="datetime-local" id="event-datetime"></div>
       <div class="form-group">
-        <label>Asociar a Línea de Investigación</label>
-        <select id="event-line-select">
-          <!-- Se rellena dinámicamente -->
-        </select>
+        <label>Asociar a Bloque / Línea</label>
+        <select id="event-line-select"></select>
       </div>
       <div class="modal-actions">
         <button class="btn" onclick="cerrarCrearReunion()">Cancelar</button>
@@ -201,7 +216,7 @@
 
     let sesionActiva = false;
     let usuarioEmail = "";
-    let lineasCache = []; // Guardamos las líneas para usarlas en el selector de eventos
+    let lineasCache = [];
 
     clienteSupabase.auth.onAuthStateChange((event, session) => {
       sesionActiva = !!session;
@@ -233,7 +248,6 @@
     
     async function cerrarSesion() { await clienteSupabase.auth.signOut(); }
 
-    // Función auxiliar para asignar el color según el número de línea
     function obtenerColorLinea(num) {
       switch(num) {
         case 0: return 'var(--color-general)';
@@ -242,21 +256,30 @@
         case 3: return 'var(--color-l3)';
         case 4: return 'var(--color-l4)';
         case 5: return 'var(--color-l5)';
+        case 6: // Instagram
+        case 7: // LinkedIn
+          return '#9c27b0'; // Tono violeta redes
+        case 8: // Conferencias y Eventos (Gonzalo, Paloma y Tyssa)
+          return 'var(--color-events)';
         default: return '#78909c';
       }
     }
 
     async function cargarLineas() {
       const container = document.getElementById('lines-container');
+      const diffusionContainer = document.getElementById('diffusion-container');
+      
       const { data, error } = await clienteSupabase.from('lineas_investigacion').select('*').order('numero_linea', { ascending: true });
 
       if (error) return;
-      lineasCache = data; // Guardamos en caché
+      lineasCache = data;
+      
       container.innerHTML = '';
+      diffusionContainer.innerHTML = '';
 
       data.forEach(linea => {
         let badgeHTML = '';
-        if (linea.numero_linea > 0) {
+        if (linea.numero_linea > 0 && linea.numero_linea < 6) {
           let badgeClass = 'status-processing';
           if (linea.estado_actual === 'En escritura') badgeClass = 'status-writing';
           if (linea.estado_actual === 'En revisión') badgeClass = 'status-review';
@@ -289,17 +312,22 @@
           </div>
 
           <div class="card-actions">
-            <a href="${linea.enlace_meet || '#'}" target="_blank" class="btn" style="flex: 1; text-align: center; font-size: 0.85rem;">🎥 Meet</a>
+            <a href="${linea.enlace_meet || '#'}" target="_blank" class="btn" style="flex: 1; text-align: center; font-size: 0.85rem;">🔗 Enlace / Meet</a>
             ${botonEditar}
           </div>
         `;
-        container.appendChild(card);
+
+        // Si el número de línea es 6 o superior, va a la sección de difusión paralela
+        if (linea.numero_linea >= 6) {
+          diffusionContainer.appendChild(card);
+        } else {
+          container.appendChild(card);
+        }
       });
     }
 
     function escapeQuotes(str) { return str ? str.replace(/'/g, "\\'").replace(/"/g, '&quot;') : ''; }
 
-    // HISTORIAL Y BITÁCORA
     async function abrirHistorial(id, titulo) {
       document.getElementById('history-title').textContent = 'Historial: ' + titulo;
       document.getElementById('history-modal').style.display = 'flex';
@@ -330,6 +358,7 @@
         `;
       }).join('');
     }
+    
     function cerrarHistorial() { document.getElementById('history-modal').style.display = 'none'; }
 
     async function borrarNota(notaId, lineaId, titulo) {
@@ -338,7 +367,6 @@
       if (!error) abrirHistorial(lineaId, titulo);
     }
 
-    // EDICIÓN TARJETA
     function abrirEdit(id, inv, tit, est, meet, numLinea) {
       document.getElementById('edit-id').value = id;
       document.getElementById('edit-investigador').value = inv;
@@ -352,7 +380,6 @@
       document.getElementById('edit-titulo').disabled = !esAdmin;
       document.getElementById('edit-meet').disabled = !esAdmin;
 
-      // La tarjeta General (num 0) no tiene estado
       if (numLinea === 0) {
         document.getElementById('estado-group').style.display = 'none';
       } else {
@@ -362,6 +389,7 @@
 
       document.getElementById('edit-modal').style.display = 'flex';
     }
+    
     function cerrarEdit() { document.getElementById('edit-modal').style.display = 'none'; }
 
     async function guardarCambios() {
@@ -378,7 +406,6 @@
         if (selectEstado.style.display !== 'none') updates.estado_actual = selectEstado.value;
       }
 
-      // Si la nota está vacía, dejamos que la última actualización se mantenga o borre si se desea limpiar
       if (nuevaNota !== "") {
         updates.ultima_actualizacion = nuevaNota;
       }
@@ -395,7 +422,6 @@
       cargarLineas();
     }
 
-    // CALENDARIO GLOBAL
     async function abrirCalendario() {
       document.getElementById('calendar-modal').style.display = 'flex';
       const btnNueva = document.getElementById('btn-nueva-reunion');
@@ -428,7 +454,7 @@
               <span class="event-date">📅 ${fechaRev}</span>
             </div>
             <div style="display: flex; gap: 0.5rem; align-items: center;">
-              <a href="${lineaInfo.enlace_meet || '#'}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">🎥 Unirse al Meet</a>
+              <a href="${lineaInfo.enlace_meet || '#'}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">🔗 Enlace</a>
               ${botonBorrarReunion}
             </div>
           </div>
@@ -453,27 +479,14 @@
       const fechaHora = document.getElementById('event-datetime').value;
       const lineaId = document.getElementById('event-line-select').value;
 
-      if (!titulo || !fechaHora) {
-        alert('Rellena el título y la fecha/hora.');
-        return;
-      }
+      if (!titulo || !fechaHora) { alert('Rellena el título y la fecha/hora.'); return; }
 
-      const { error } = await clienteSupabase.from('reuniones').insert({
-        titulo: titulo,
-        fecha_hora: fechaHora,
-        linea_id: lineaId
-      });
-
-      if (error) {
-        alert('Error al agendar: ' + error.message);
-      } else {
-        cerrarCrearReunion();
-        abrirCalendario(); // Recarga la lista de eventos
-      }
+      const { error } = await clienteSupabase.from('reuniones').insert({ titulo, fecha_hora: fechaHora, linea_id: lineaId });
+      if (!error) { cerrarCrearReunion(); abrirCalendario(); }
     }
 
     async function borrarReunion(id) {
-      if (!confirm('¿Eliminar esta reunión del calendario?')) return;
+      if (!confirm('¿Eliminar esta reunión?')) return;
       const { error } = await clienteSupabase.from('reuniones').delete().eq('id', id);
       if (!error) abrirCalendario();
     }
