@@ -13,8 +13,10 @@
       --text-main: #e4e6eb; --text-muted: #a0a3a7; --border-color: #333333;
       --accent-color: #2c2f33; --accent-hover: #3f434a;
       
-      --status-active-bg: rgba(66, 165, 245, 0.15); --status-active-text: #90caf9;
-      --status-sent-bg: rgba(158, 158, 158, 0.1); --status-sent-text: #9e9e9e; /* Menos relevancia para completados */
+      --status-data: #e3f2fd; --status-data-text: #0d47a1;
+      --status-writing: #f3e5f5; --status-writing-text: #4a148c;
+      --status-review: #fff3e0; --status-review-text: #e65100;
+      --status-sent-bg: rgba(158, 158, 158, 0.1); --status-sent-text: #9e9e9e;
 
       --color-general: #78909c;
       --color-events: #66bb6a;
@@ -24,7 +26,6 @@
     body { font-family: system-ui, sans-serif; background-color: var(--bg-color); color: var(--text-main); padding: 2rem; line-height: 1.5; }
     header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
     
-    /* Barra de Filtros */
     .filters-bar { display: flex; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center; }
     .filter-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-muted); padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.85rem; cursor: pointer; transition: 0.2s; }
     .filter-btn:hover { background: var(--accent-hover); color: var(--text-main); }
@@ -39,14 +40,16 @@
     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
     
     .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; height: 100%; transition: opacity 0.2s; }
-    .card.completed { opacity: 0.65; border-top-color: #555 !important; } /* Atenuadas visualmente */
+    .card.completed { opacity: 0.65; border-top-color: #555 !important; }
     
     .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
     .card-title { font-size: 1.05rem; font-weight: 600; }
     .researcher-name { font-size: 0.85rem; color: var(--text-muted); }
     
     .status-badge { font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 12px; font-weight: 600; white-space: nowrap; }
-    .status-active { background-color: var(--status-active-bg); color: var(--status-active-text); }
+    .status-data { background-color: var(--status-data); color: var(--status-data-text); }
+    .status-writing { background-color: var(--status-writing); color: var(--status-writing-text); }
+    .status-review { background-color: var(--status-review); color: var(--status-review-text); }
     .status-sent { background-color: var(--status-sent-bg); color: var(--status-sent-text); border: 1px solid rgba(158,158,158,0.2); }
     
     .log-preview { background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; border-left: 3px solid var(--text-muted); color: var(--text-muted); cursor: pointer; transition: background 0.2s; display: flex; flex-direction: column; flex-grow: 1; }
@@ -99,7 +102,6 @@
     </div>
   </header>
 
-  <!-- Barra de Filtros Rpidos -->
   <div class="filters-bar">
     <button class="filter-btn active" onclick="filtrar('todas', this)">Todas</button>
     <button class="filter-btn" onclick="filtrar('abiertas', this)">En marcha / Activas</button>
@@ -118,7 +120,6 @@
     </section>
   </main>
 
-  <!-- Modales -->
   <div class="modal-overlay" id="login-modal">
     <div class="modal">
       <h3>Acceso Equipo</h3>
@@ -141,17 +142,12 @@
       <div class="form-group" id="estado-group">
         <label>Estado Actual</label>
         <select id="edit-estado">
-          <option value="Experimentos y análisis en marcha">Experimentos y análisis en marcha</option>
-          <option value="Diseño experimental">Diseño experimental</option>
-          <option value="A plantear">A plantear</option>
-          <option value="Análisis de los registros">Análisis de los registros</option>
-          <option value="Escritura del ms">Escritura del ms</option>
-          <option value="Planteamiento y propuesta de modelos">Planteamiento y propuesta de modelos</option>
-          <option value="Hipercubo desarrollado y aplicado">Hipercubo desarrollado y aplicado</option>
-          <option value="Modelo de red desarrollado y aplicado">Modelo de red desarrollado y aplicado</option>
-          <option value="Fundamentación teórica y plausibilidad">Fundamentación teórica y plausibilidad</option>
-          <option value="Prueba">Prueba</option>
-          <option value="Enviado">Enviado (Completado)</option>
+          <option value="Recolección de datos">Recolección de datos</option>
+          <option value="Procesamiento de datos">Procesamiento de datos</option>
+          <option value="En escritura">En escritura</option>
+          <option value="En revisión">En revisión</option>
+          <option value="Planteamiento">Planteamiento</option>
+          <option value="Enviado">Enviado</option>
           <option value="Activo">Activo</option>
         </select>
       </div>
@@ -244,14 +240,16 @@
 
     function obtenerColorLinea(num) {
       if (num === 0) return 'var(--color-general)';
-      if (num >= 15 && num <= 16) return '#9c27b0';
-      if (num === 17) return 'var(--color-events)';
-      const colores = ['#26a69a', '#ab47bc', '#ffa726', '#42a5f5', '#ec407a', '#26a69a', '#ab47bc', '#ffa726', '#42a5f5', '#ec407a', '#26a69a', '#9e9e9e', '#9e9e9e', '#26a69a'];
+      // Las completadas (11 y 12) van en tono atenuado
+      if (num === 11 || num === 12) return '#9e9e9e';
+      // Redes sociales y eventos al final
+      if (num >= 13 && num <= 14) return '#9c27b0';
+      if (num === 15) return 'var(--color-events)';
+      const colores = ['#26a69a', '#ab47bc', '#ffa726', '#42a5f5', '#ec407a', '#26a69a', '#ab47bc', '#ffa726', '#42a5f5', '#ec407a', '#26a69a', '#ab47bc', '#ffa726'];
       return colores[(num - 1) % colores.length];
     }
 
     async function cargarDatosCompletos() {
-      // Cargamos líneas y reuniones al mismo tiempo para cruzar datos de "Próxima Reunión"
       const [{ data: lineas }, { data: reuniones }] = await Promise.all([
         clienteSupabase.from('lineas_investigacion').select('*').order('numero_linea', { ascending: true }),
         clienteSupabase.from('reuniones').select('*').order('fecha_hora', { ascending: true })
@@ -281,18 +279,18 @@
 
       lineasCache.forEach(linea => {
         const esCompletada = (linea.estado_actual === 'Enviado');
-        
-        // Buscar próxima reunión futura para esta línea
         const proximaReunion = reunionesCache.find(r => r.linea_id === linea.id && new Date(r.fecha_hora) >= ahora);
 
-        // Lógica de Filtros
-        if (filtroActual === 'abiertas' && (esCompletada || linea.numero_linea >= 15)) return;
+        if (filtroActual === 'abiertas' && (esCompletada || linea.numero_linea >= 13)) return;
         if (filtroActual === 'completadas' && !esCompletada) return;
         if (filtroActual === 'reunion' && !proximaReunion) return;
 
         let badgeHTML = '';
-        if (linea.numero_linea > 0 && linea.numero_linea < 15) {
-          const badgeClass = esCompletada ? 'status-sent' : 'status-active';
+        if (linea.numero_linea > 0 && linea.numero_linea <= 12) {
+          let badgeClass = 'status-data';
+          if (linea.estado_actual === 'En escritura') badgeClass = 'status-writing';
+          if (linea.estado_actual === 'En revisión') badgeClass = 'status-review';
+          if (esCompletada) badgeClass = 'status-sent';
           badgeHTML = `<span class="status-badge ${badgeClass}">${linea.estado_actual}</span>`;
         }
 
@@ -301,7 +299,6 @@
           botonEditar = `<button class="btn btn-primary" style="font-size: 0.80rem; padding: 0.3rem 0.6rem;" onclick="abrirEdit('${linea.id}', '${escapeQuotes(linea.nombre_investigador)}', '${escapeQuotes(linea.titulo_linea)}', '${linea.estado_actual}', '${linea.enlace_meet || ''}', ${linea.numero_linea})">Editar</button>`;
         }
 
-        // Elemento dinámico de Próxima Reunión
         let reunionHTML = `<span class="no-meeting">Sin reunión próxima</span>`;
         if (proximaReunion) {
           const fechaFmt = new Date(proximaReunion.fecha_hora).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -334,7 +331,8 @@
           </div>
         `;
 
-        if (linea.numero_linea >= 15) {
+        // Las redes sociales y eventos van abajo del todo
+        if (linea.numero_linea >= 13) {
           diffusionContainer.appendChild(card);
         } else {
           container.appendChild(card);
@@ -464,7 +462,7 @@
               <span class="event-date">📅 ${fechaRev}</span>
             </div>
             <div style="display: flex; gap: 0.5rem; align-items: center;">
-              <a href="${lineaInfo.enlace_meet || '#'}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">🎥 Meet</a>
+              <a href="${lineaInfo.enlace_meet || '#'}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">🔗 Enlace</a>
               ${botonBorrar}
             </div>
           </div>
