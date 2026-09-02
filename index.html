@@ -86,6 +86,8 @@
     .history-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem; }
     .btn-delete { background: transparent; border: 1px solid #ef5350; color: #ef5350; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; cursor: pointer; }
     .btn-delete:hover { background: rgba(239, 83, 80, 0.1); }
+    .btn-edit-event { background: transparent; border: 1px solid #42a5f5; color: #42a5f5; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; cursor: pointer; }
+    .btn-edit-event:hover { background: rgba(66, 165, 245, 0.1); }
     .history-text { font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; }
   </style>
 </head>
@@ -110,18 +112,15 @@
   </div>
 
   <main>
-    <!-- Líneas de Investigación Activas (0 al 12) -->
     <div class="dashboard-grid" id="lines-container">
       <p style="color: var(--text-muted);">Cargando organización...</p>
     </div>
 
-    <!-- Sección de Redes Sociales y Eventos -->
     <section class="section-block" id="diffusion-block">
       <h2>Difusión, Redes y Eventos</h2>
       <div class="dashboard-grid" id="diffusion-container"></div>
     </section>
 
-    <!-- Sección final de Líneas Completadas -->
     <section class="section-block" id="completed-block">
       <h2>Líneas Completadas / Enviadas</h2>
       <div class="dashboard-grid" id="completed-container"></div>
@@ -176,6 +175,7 @@
     </div>
   </div>
 
+  <!-- Modal CALENDARIO -->
   <div class="modal-overlay" id="calendar-modal">
     <div class="modal" style="max-width: 600px;">
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
@@ -189,15 +189,17 @@
     </div>
   </div>
 
+  <!-- Modal CREAR / EDITAR REUNIÓN -->
   <div class="modal-overlay" id="new-event-modal">
     <div class="modal" style="max-width: 400px;">
-      <h3>Agendar Nueva Reunión</h3>
+      <h3 id="event-modal-title">Agendar Nueva Reunión</h3>
+      <input type="hidden" id="event-edit-id">
       <div class="form-group"><label>Título del Evento</label><input type="text" id="event-title"></div>
       <div class="form-group"><label>Fecha y Hora</label><input type="datetime-local" id="event-datetime"></div>
       <div class="form-group"><label>Asociar a Línea</label><select id="event-line-select"></select></div>
       <div class="modal-actions">
         <button class="btn" onclick="cerrarCrearReunion()">Cancelar</button>
-        <button class="btn btn-primary" onclick="guardarReunion()">Agendar</button>
+        <button class="btn btn-primary" onclick="guardarReunion()">Guardar</button>
       </div>
     </div>
   </div>
@@ -248,9 +250,9 @@
 
     function obtenerColorLinea(num) {
       if (num === 0) return 'var(--color-general)';
-      if (num >= 13 && num <= 14) return '#9c27b0'; // Redes sociales
-      if (num === 15) return 'var(--color-events)'; // Conferencias y eventos
-      if (num >= 16) return '#9e9e9e'; // Completadas (Gris atenuado)
+      if (num >= 13 && num <= 14) return '#9c27b0';
+      if (num === 15) return 'var(--color-events)';
+      if (num >= 16) return '#9e9e9e';
       const colores = ['#26a69a', '#ab47bc', '#ffa726', '#42a5f5', '#ec407a', '#26a69a', '#ab47bc', '#ffa726', '#42a5f5', '#ec407a', '#26a69a'];
       return colores[num % colores.length];
     }
@@ -341,7 +343,6 @@
           </div>
         `;
 
-        // Destino de las tarjetas según su número
         if (linea.numero_linea >= 16) {
           completedContainer.appendChild(card);
         } else if (linea.numero_linea >= 13) {
@@ -351,7 +352,6 @@
         }
       });
 
-      // Ocultar bloques enteros si el filtro los vacía
       document.getElementById('diffusion-block').style.display = (diffusionContainer.children.length === 0 && filtroActual !== 'todas') ? 'none' : 'block';
       document.getElementById('completed-block').style.display = (completedContainer.children.length === 0 && filtroActual !== 'todas') ? 'none' : 'block';
     }
@@ -449,6 +449,7 @@
       cargarDatosCompletos();
     }
 
+    // CALENDARIO GLOBAL
     async function abrirCalendario() {
       document.getElementById('calendar-modal').style.display = 'flex';
       document.getElementById('btn-nueva-reunion').style.display = sesionActiva ? 'block' : 'none';
@@ -468,7 +469,14 @@
         const fechaRev = new Date(rev.fecha_hora).toLocaleString('es-ES', { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
         const lineaInfo = rev.lineas_investigacion || { titulo_linea: 'General', enlace_meet: '#', numero_linea: 0 };
         const colorLinea = obtenerColorLinea(lineaInfo.numero_linea);
-        let botonBorrar = admin ? `<button class="btn-delete" onclick="borrarReunion('${rev.id}')">🗑️ Borrar</button>` : '';
+        
+        let botonesAccion = '';
+        if (admin) {
+          botonesAccion = `
+            <button class="btn-edit-event" onclick="abrirEditarReunion('${rev.id}', '${escapeQuotes(rev.titulo)}', '${rev.fecha_hora}', '${rev.linea_id}')">✏️ Editar</button>
+            <button class="btn-delete" onclick="borrarReunion('${rev.id}')">🗑️ Borrar</button>
+          `;
+        }
 
         return `
           <div class="calendar-event" style="border-left-color: ${colorLinea};">
@@ -478,8 +486,8 @@
               <span class="event-date">📅 ${fechaRev}</span>
             </div>
             <div style="display: flex; gap: 0.5rem; align-items: center;">
-              <a href="${lineaInfo.enlace_meet || '#'}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">🔗 Enlace</a>
-              ${botonBorrar}
+              <a href="${lineaInfo.enlace_meet || '#'}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">🎥 Meet</a>
+              ${botonesAccion}
             </div>
           </div>
         `;
@@ -488,24 +496,45 @@
 
     function cerrarCalendario() { document.getElementById('calendar-modal').style.display = 'none'; }
 
-    async function abrirCrearReunion() {
+    function abrirCrearReunion() {
       const select = document.getElementById('event-line-select');
       select.innerHTML = lineasCache.map(l => `<option value="${l.id}">${l.titulo_linea}</option>`).join('');
+      document.getElementById('event-edit-id').value = '';
+      document.getElementById('event-modal-title').textContent = 'Agendar Nueva Reunión';
       document.getElementById('event-title').value = '';
       document.getElementById('event-datetime').value = '';
+      document.getElementById('new-event-modal').style.display = 'flex';
+    }
+
+    function abrirEditarReunion(id, titulo, fechaHora, lineaId) {
+      const select = document.getElementById('event-line-select');
+      select.innerHTML = lineasCache.map(l => `<option value="${l.id}" ${l.id === lineaId ? 'selected' : ''}>${l.titulo_linea}</option>`).join('');
+      document.getElementById('event-edit-id').value = id;
+      document.getElementById('event-modal-title').textContent = 'Editar Reunión';
+      document.getElementById('event-title').value = titulo;
+      // Formato para datetime-local (YYYY-MM-DDThh:mm)
+      document.getElementById('event-datetime').value = fechaHora ? fechaHora.slice(0, 16) : '';
       document.getElementById('new-event-modal').style.display = 'flex';
     }
 
     function cerrarCrearReunion() { document.getElementById('new-event-modal').style.display = 'none'; }
 
     async function guardarReunion() {
+      const id = document.getElementById('event-edit-id').value;
       const titulo = document.getElementById('event-title').value.trim();
       const fechaHora = document.getElementById('event-datetime').value;
       const lineaId = document.getElementById('event-line-select').value;
 
       if (!titulo || !fechaHora) { alert('Rellena el título y la fecha.'); return; }
 
-      await clienteSupabase.from('reuniones').insert({ titulo, fecha_hora: fechaHora, linea_id: lineaId });
+      if (id) {
+        // Actualizar existente
+        await clienteSupabase.from('reuniones').update({ titulo, fecha_hora: fechaHora, linea_id: lineaId }).eq('id', id);
+      } else {
+        // Crear nueva
+        await clienteSupabase.from('reuniones').insert({ titulo, fecha_hora: fechaHora, linea_id: lineaId });
+      }
+
       cerrarCrearReunion();
       abrirCalendario();
       cargarDatosCompletos();
