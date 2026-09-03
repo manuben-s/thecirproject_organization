@@ -57,7 +57,7 @@
     .log-text { margin: 6px 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word; color: var(--text-main); }
     .log-hint { font-size: 0.7rem; color: var(--text-muted); margin-top: auto; padding-top: 4px; }
     
-    .card-actions { display: flex; gap: 0.5rem; margin-top: auto; align-items: center; }
+    .card-actions { display: flex; gap: 0.4rem; margin-top: auto; align-items: center; flex-wrap: wrap; }
     .next-meeting-info { font-size: 0.75rem; color: #81c784; background: rgba(129, 199, 132, 0.1); padding: 0.3rem 0.5rem; border-radius: 4px; border: 1px solid rgba(129, 199, 132, 0.2); flex: 1; text-align: center; text-decoration: none; display: block; }
     .next-meeting-info:hover { background: rgba(129, 199, 132, 0.2); }
     .no-meeting { font-size: 0.75rem; color: var(--text-muted); flex: 1; text-align: center; }
@@ -71,7 +71,6 @@
     .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
     .form-group label { font-size: 0.85rem; color: var(--text-muted); }
     .form-group input, .form-group select, .form-group textarea { background: var(--bg-color); border: 1px solid var(--border-color); color: var(--text-main); padding: 0.6rem; border-radius: 6px; font-family: inherit; }
-    input:disabled, select:disabled { opacity: 0.5; cursor: not-allowed; border-style: dashed; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
     
     .calendar-event { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; border-radius: 6px; background: rgba(255,255,255,0.03); border-left: 4px solid #fff; margin-bottom: 0.5rem; }
@@ -88,6 +87,8 @@
     .btn-delete:hover { background: rgba(239, 83, 80, 0.1); }
     .btn-edit-event { background: transparent; border: 1px solid #42a5f5; color: #42a5f5; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; cursor: pointer; }
     .btn-edit-event:hover { background: rgba(66, 165, 245, 0.1); }
+    .btn-sync-cal { background: rgba(66, 165, 245, 0.15); border: 1px solid #42a5f5; color: #90caf9; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; text-decoration: none; display: inline-block; }
+    .btn-sync-cal:hover { background: rgba(66, 165, 245, 0.3); }
     .history-text { font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; }
   </style>
 </head>
@@ -140,6 +141,7 @@
     </div>
   </div>
 
+  <!-- Modal EDICIÓN -->
   <div class="modal-overlay" id="edit-modal">
     <div class="modal">
       <h3>Actualizar Espacio</h3>
@@ -158,7 +160,8 @@
           <option value="Activo">Activo</option>
         </select>
       </div>
-      <div class="form-group"><label>Enlace de Meet / Externo</label><input type="text" id="edit-meet"></div>
+      <div class="form-group"><label>Enlace de Meet</label><input type="text" id="edit-meet"></div>
+      <div class="form-group"><label>Enlace de Google Drive</label><input type="text" id="edit-drive"></div>
       <div class="form-group"><label>Añadir nueva nota a la Bitácora</label><textarea id="edit-log" rows="4" placeholder="Escribe tu actualización..."></textarea></div>
       <div class="modal-actions">
         <button class="btn" onclick="cerrarEdit()">Cancelar</button>
@@ -177,7 +180,7 @@
 
   <!-- Modal CALENDARIO -->
   <div class="modal-overlay" id="calendar-modal">
-    <div class="modal" style="max-width: 600px;">
+    <div class="modal" style="max-width: 650px;">
       <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
         <h3 style="border: none; margin: 0; padding: 0;">📅 Calendario de Reuniones</h3>
         <button class="btn btn-primary" id="btn-nueva-reunion" style="font-size: 0.8rem; display: none;" onclick="abrirCrearReunion()">+ Agendar Reunión</button>
@@ -191,21 +194,24 @@
 
   <!-- Modal CREAR / EDITAR REUNIÓN -->
   <div class="modal-overlay" id="new-event-modal">
-    <div class="modal" style="max-width: 400px;">
+    <div class="modal" style="max-width: 450px;">
       <h3 id="event-modal-title">Agendar Nueva Reunión</h3>
       <input type="hidden" id="event-edit-id">
       <div class="form-group"><label>Título del Evento</label><input type="text" id="event-title"></div>
-      <div class="form-group"><label>Fecha y Hora</label><input type="datetime-local" id="event-datetime"></div>
+      <div class="form-group"><label>Fecha y Hora (Hora España)</label><input type="datetime-local" id="event-datetime"></div>
       <div class="form-group"><label>Asociar a Línea</label><select id="event-line-select"></select></div>
+      <div class="form-group">
+        <label>Emails para sincronización automática (separados por coma)</label>
+        <input type="text" id="event-emails" value="pmanuben@ucm.es, josea@ucm.es">
+      </div>
       <div class="modal-actions">
         <button class="btn" onclick="cerrarCrearReunion()">Cancelar</button>
-        <button class="btn btn-primary" onclick="guardarReunion()">Guardar</button>
+        <button class="btn btn-primary" onclick="guardarReunion()">Guardar y Sincronizar</button>
       </div>
     </div>
   </div>
 
   <script>
-    const CORREOS_ADMINISTRADORA = ["pmanuben@ucm.es", "josea@ucm.es"];
     const supabaseUrl = 'https://scszmpsfejbmrwzgjgtw.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjc3ptcHNmZWpibXJ3emdqZ3R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNTc0MzcsImV4cCI6MjEwMzgzMzQzN30.lN08jqs-AXHRLSSVVwasLRQJlZx4bjFaT8RR0Vf0pjE';
     const clienteSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
@@ -230,8 +236,6 @@
       }
       cargarDatosCompletos();
     });
-
-    function esAdmin() { return CORREOS_ADMINISTRADORA.includes(usuarioEmail); }
 
     function abrirLogin() { document.getElementById('login-modal').style.display = 'flex'; document.getElementById('login-error').style.display = 'none'; }
     function cerrarLogin() { document.getElementById('login-modal').style.display = 'none'; }
@@ -308,15 +312,17 @@
 
         let botonEditar = '';
         if (sesionActiva) {
-          botonEditar = `<button class="btn btn-primary" style="font-size: 0.80rem; padding: 0.3rem 0.6rem;" onclick="abrirEdit('${linea.id}', '${escapeQuotes(linea.nombre_investigador)}', '${escapeQuotes(linea.titulo_linea)}', '${linea.estado_actual}', '${linea.enlace_meet || ''}', ${linea.numero_linea})">Editar</button>`;
+          botonEditar = `<button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;" onclick="abrirEdit('${linea.id}', '${escapeQuotes(linea.nombre_investigador)}', '${escapeQuotes(linea.titulo_linea)}', '${linea.estado_actual}', '${linea.enlace_meet || ''}', '${escapeQuotes(linea.enlace_drive || 'https://meet.google.com/ixo-bpxh-mhg')}', ${linea.numero_linea})">Editar</button>`;
         }
 
         let reunionHTML = `<span class="no-meeting">Sin reunión próxima</span>`;
         if (proximaReunion) {
-          const fechaFmt = new Date(proximaReunion.fecha_hora).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+          const fechaObjLocal = new Date(proximaReunion.fecha_hora);
+          const fechaFmt = fechaObjLocal.toLocaleString('es-ES', { timeZone: 'Europe/Madrid', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
           reunionHTML = `<a href="${linea.enlace_meet || '#'}" target="_blank" class="next-meeting-info" title="${proximaReunion.titulo}">📌 ${fechaFmt}</a>`;
         }
 
+        const enlaceDrive = linea.enlace_drive || 'https://meet.google.com/ixo-bpxh-mhg';
         const colorLinea = obtenerColorLinea(linea.numero_linea);
 
         const card = document.createElement('article');
@@ -339,6 +345,7 @@
 
           <div class="card-actions">
             ${reunionHTML}
+            <a href="${enlaceDrive}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;" title="Google Drive">📁 Drive</a>
             ${botonEditar}
           </div>
         `;
@@ -371,10 +378,12 @@
         return;
       }
 
-      const admin = esAdmin();
+      // Todos los usuarios logueados pueden borrar notas
+      const puedeBorrar = sesionActiva;
       content.innerHTML = data.map(nota => {
-        const fechaFormat = new Date(nota.fecha).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-        let botonBorrar = admin ? `<button class="btn-delete" onclick="borrarNota('${nota.id}', '${id}', '${escapeQuotes(titulo)}')">🗑️ Borrar</button>` : '';
+        const fechaObjLocal = new Date(nota.fecha);
+        const fechaFormat = fechaObjLocal.toLocaleString('es-ES', { timeZone: 'Europe/Madrid', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+        let botonBorrar = puedeBorrar ? `<button class="btn-delete" onclick="borrarNota('${nota.id}', '${id}', '${escapeQuotes(titulo)}')">🗑️ Borrar</button>` : '';
 
         return `
           <div class="history-item">
@@ -393,27 +402,32 @@
     async function borrarNota(notaId, lineaId, titulo) {
       if (!confirm('¿Borrar esta actualización?')) return;
       await clienteSupabase.from('bitacora').delete().eq('id', notaId);
+      
+      // Comprobar si quedan más notas en el historial para actualizar la tarjeta principal
+      const { data } = await clienteSupabase.from('bitacora').select('*').eq('linea_id', lineaId).order('fecha', { ascending: false });
+      let nuevaUltimaNota = '';
+      if (data && data.length > 0) {
+        nuevaUltimaNota = data[0].mensaje;
+      }
+      await clienteSupabase.from('lineas_investigacion').update({ ultima_actualizacion: nuevaUltimaNota }).eq('id', lineaId);
+
       abrirHistorial(lineaId, titulo);
+      cargarDatosCompletos();
     }
 
-    function abrirEdit(id, inv, tit, est, meet, numLinea) {
+    function abrirEdit(id, inv, tit, est, meet, drive, numLinea) {
       document.getElementById('edit-id').value = id;
       document.getElementById('edit-investigador').value = inv;
       document.getElementById('edit-titulo').value = tit;
       document.getElementById('edit-estado').value = est;
       document.getElementById('edit-meet').value = meet;
+      document.getElementById('edit-drive').value = drive;
       document.getElementById('edit-log').value = "";
       
-      const admin = esAdmin();
-      document.getElementById('edit-investigador').disabled = !admin;
-      document.getElementById('edit-titulo').disabled = !admin;
-      document.getElementById('edit-meet').disabled = !admin;
-
       if (numLinea === 0) {
         document.getElementById('estado-group').style.display = 'none';
       } else {
         document.getElementById('estado-group').style.display = 'flex';
-        document.getElementById('edit-estado').disabled = !admin;
       }
 
       document.getElementById('edit-modal').style.display = 'flex';
@@ -424,22 +438,23 @@
     async function guardarCambios() {
       const id = document.getElementById('edit-id').value;
       const nuevaNota = document.getElementById('edit-log').value.trim();
-      const admin = esAdmin();
-      let updates = {};
+      let updates = {
+        nombre_investigador: document.getElementById('edit-investigador').value,
+        titulo_linea: document.getElementById('edit-titulo').value,
+        enlace_meet: document.getElementById('edit-meet').value,
+        enlace_drive: document.getElementById('edit-drive').value
+      };
 
-      if (admin) {
-        updates.nombre_investigador = document.getElementById('edit-investigador').value;
-        updates.titulo_linea = document.getElementById('edit-titulo').value;
-        updates.enlace_meet = document.getElementById('edit-meet').value;
-        const selectEstado = document.getElementById('edit-estado');
-        if (selectEstado.style.display !== 'none') updates.estado_actual = selectEstado.value;
+      const selectEstado = document.getElementById('edit-estado');
+      if (selectEstado.style.display !== 'none') {
+        updates.estado_actual = selectEstado.value;
       }
 
-      if (nuevaNota !== "") updates.ultima_actualizacion = nuevaNota;
-
-      if (Object.keys(updates).length > 0) {
-        await clienteSupabase.from('lineas_investigacion').update(updates).eq('id', id);
+      if (nuevaNota !== "") {
+        updates.ultima_actualizacion = nuevaNota;
       }
+
+      await clienteSupabase.from('lineas_investigacion').update(updates).eq('id', id);
 
       if (nuevaNota !== "") {
         await clienteSupabase.from('bitacora').insert({ linea_id: id, autor: usuarioEmail, mensaje: nuevaNota });
@@ -449,7 +464,7 @@
       cargarDatosCompletos();
     }
 
-    // CALENDARIO GLOBAL
+    // CALENDARIO GLOBAL Y SINCRONIZACIÓN
     async function abrirCalendario() {
       document.getElementById('calendar-modal').style.display = 'flex';
       document.getElementById('btn-nueva-reunion').style.display = sesionActiva ? 'block' : 'none';
@@ -464,17 +479,26 @@
         return;
       }
 
-      const admin = esAdmin();
+      // Todos los usuarios logueados pueden modificar/borrar reuniones
+      const puedeGestionar = sesionActiva;
       lista.innerHTML = data.map(rev => {
-        const fechaRev = new Date(rev.fecha_hora).toLocaleString('es-ES', { weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+        const fechaObj = new Date(rev.fecha_hora);
+        const fechaRev = fechaObj.toLocaleString('es-ES', { timeZone: 'Europe/Madrid', weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
         const lineaInfo = rev.lineas_investigacion || { titulo_linea: 'General', enlace_meet: '#', numero_linea: 0 };
         const colorLinea = obtenerColorLinea(lineaInfo.numero_linea);
         
-        let botonesAccion = '';
-        if (admin) {
-          botonesAccion = `
-            <button class="btn-edit-event" onclick="abrirEditarReunion('${rev.id}', '${escapeQuotes(rev.titulo)}', '${rev.fecha_hora}', '${rev.linea_id}')">✏️ Editar</button>
-            <button class="btn-delete" onclick="borrarReunion('${rev.id}')">🗑️ Borrar</button>
+        const startISO = fechaObj.toISOString().replace(/-|:|\.\d\d\d/g,"");
+        const endDate = new Date(fechaObj.getTime() + 60*60*1000);
+        const endISO = endDate.toISOString().replace(/-|:|\.\d\d\d/g,"");
+        
+        const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(rev.titulo)}&dates=${startISO}/${endISO}&details=${encodeURIComponent('Enlace de Meet: ' + (lineaInfo.enlace_meet || ''))}&add=pmanuben@ucm.es,josea@ucm.es`;
+
+        let botonesAccion = `<a href="${gcalUrl}" target="_blank" class="btn-sync-cal" title="Añadir a Google Calendar">📅 Sincronizar GCal</a>`;
+
+        if (puedeGestionar) {
+          botonesAccion += `
+            <button class="btn-edit-event" onclick="abrirEditarReunion('${rev.id}', '${escapeQuotes(rev.titulo)}', '${rev.fecha_hora}', '${rev.linea_id}')">✏️</button>
+            <button class="btn-delete" onclick="borrarReunion('${rev.id}')">🗑️</button>
           `;
         }
 
@@ -485,8 +509,8 @@
               <span class="event-title">${rev.titulo}</span>
               <span class="event-date">📅 ${fechaRev}</span>
             </div>
-            <div style="display: flex; gap: 0.5rem; align-items: center;">
-              <a href="${lineaInfo.enlace_meet || '#'}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">🎥 Meet</a>
+            <div style="display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
+              <a href="${lineaInfo.enlace_meet || '#'}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;">🎥 Meet</a>
               ${botonesAccion}
             </div>
           </div>
@@ -512,7 +536,6 @@
       document.getElementById('event-edit-id').value = id;
       document.getElementById('event-modal-title').textContent = 'Editar Reunión';
       document.getElementById('event-title').value = titulo;
-      // Formato para datetime-local (YYYY-MM-DDThh:mm)
       document.getElementById('event-datetime').value = fechaHora ? fechaHora.slice(0, 16) : '';
       document.getElementById('new-event-modal').style.display = 'flex';
     }
@@ -524,20 +547,30 @@
       const titulo = document.getElementById('event-title').value.trim();
       const fechaHora = document.getElementById('event-datetime').value;
       const lineaId = document.getElementById('event-line-select').value;
+      const emailsList = document.getElementById('event-emails').value.trim();
 
       if (!titulo || !fechaHora) { alert('Rellena el título y la fecha.'); return; }
 
       if (id) {
-        // Actualizar existente
         await clienteSupabase.from('reuniones').update({ titulo, fecha_hora: fechaHora, linea_id: lineaId }).eq('id', id);
       } else {
-        // Crear nueva
         await clienteSupabase.from('reuniones').insert({ titulo, fecha_hora: fechaHora, linea_id: lineaId });
       }
 
       cerrarCrearReunion();
       abrirCalendario();
       cargarDatosCompletos();
+
+      const fechaObj = new Date(fechaHora);
+      const startISO = fechaObj.toISOString().replace(/-|:|\.\d\d\d/g,"");
+      const endDate = new Date(fechaObj.getTime() + 60*60*1000);
+      const endISO = endDate.toISOString().replace(/-|:|\.\d\d\d/g,"");
+      
+      const lineaObj = lineasCache.find(l => l.id === lineaId);
+      const meetLink = lineaObj ? (lineaObj.enlace_meet || '') : '';
+
+      const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(titulo)}&dates=${startISO}/${endISO}&details=${encodeURIComponent('Enlace de Meet: ' + meetLink)}&add=${encodeURIComponent(emailsList)}`;
+      window.open(gcalUrl, '_blank');
     }
 
     async function borrarReunion(id) {
