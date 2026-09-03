@@ -199,7 +199,8 @@
       <input type="hidden" id="event-edit-id">
       <div class="form-group"><label>Título del Evento</label><input type="text" id="event-title"></div>
       <div class="form-group"><label>Fecha y Hora (Hora España)</label><input type="datetime-local" id="event-datetime"></div>
-      <div class="form-group"><label>Asociar a Línea</label><select id="event-line-select"></select></div>
+      <div class="form-group"><label>Asociar a Línea</label><select id="event-line-select" onchange="actualizarMeetReunion()"></select></div>
+      <div class="form-group"><label>Enlace Meet para la Reunión</label><input type="text" id="event-meet-link"></div>
       <div class="form-group">
         <label>Emails para sincronización automática (separados por coma)</label>
         <input type="text" id="event-emails" value="abelsanchez@bio.ucm.es, cctapia@ucm.es, gonzaapa@ucm.es, josea@ucm.es, pmanuben@ucm.es, serbiodh@gmail.com, tymartin@ucm.es">
@@ -481,16 +482,19 @@
       lista.innerHTML = data.map(rev => {
         const fechaObj = new Date(rev.fecha_hora);
         const fechaRev = fechaObj.toLocaleString('es-ES', { timeZone: 'Europe/Madrid', weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-        const lineaInfo = rev.lineas_investigacion || { titulo_linea: 'General', enlace_meet: '#', numero_linea: 0 };
+        const lineaInfo = rev.lineas_investigacion || { titulo_linea: 'General', enlace_meet: 'https://meet.google.com/ixo-bpxh-mhg', numero_linea: 0 };
         const colorLinea = obtenerColorLinea(lineaInfo.numero_linea);
         
         const startISO = fechaObj.toISOString().replace(/-|:|\.\d\d\d/g,"");
         const endDate = new Date(fechaObj.getTime() + 60*60*1000);
         const endISO = endDate.toISOString().replace(/-|:|\.\d\d\d/g,"");
         
+        const meetUsado = lineaInfo.enlace_meet || 'https://meet.google.com/ixo-bpxh-mhg';
         const tituloCompletoGcal = `${rev.titulo} (${lineaInfo.titulo_linea})`;
         const emailsPorDefecto = "abelsanchez@bio.ucm.es,cctapia@ucm.es,gonzaapa@ucm.es,josea@ucm.es,pmanuben@ucm.es,serbiodh@gmail.com,tymartin@ucm.es";
-        const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(tituloCompletoGcal)}&dates=${startISO}/${endISO}&details=${encodeURIComponent('Enlace de Meet: ' + (lineaInfo.enlace_meet || ''))}&add=${emailsPorDefecto}`;
+        
+        // Incluir explícitamente vuestro Meet fijo o de la línea en la descripción (details) para que aparezca claramente en GCal
+        const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(tituloCompletoGcal)}&dates=${startISO}/${endISO}&details=${encodeURIComponent('Enlace Meet de la sala: ' + meetUsado)}&location=${encodeURIComponent(meetUsado)}&add=${emailsPorDefecto}`;
 
         let botonesAccion = `<a href="${gcalUrl}" target="_blank" class="btn-sync-cal" title="Añadir a Google Calendar">📅 Sincronizar GCal</a>`;
 
@@ -509,7 +513,7 @@
               <span class="event-date">📅 ${fechaRev}</span>
             </div>
             <div style="display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
-              <a href="${lineaInfo.enlace_meet || '#'}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;">🎥 Meet</a>
+              <a href="${meetUsado}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;">🎥 Meet</a>
               ${botonesAccion}
             </div>
           </div>
@@ -521,7 +525,7 @@
 
     function abrirCrearReunion() {
       const select = document.getElementById('event-line-select');
-      select.innerHTML = lineasCache.map(l => `<option value="${l.id}">${l.titulo_linea}</option>`).join('');
+      select.innerHTML = lineasCache.map(l => `<option value="${l.id}" data-meet="${l.enlace_meet || ''}">${l.titulo_linea}</option>`).join('');
       document.getElementById('event-edit-id').value = '';
       document.getElementById('event-modal-title').textContent = 'Agendar Nueva Reunión';
       document.getElementById('event-title').value = '';
@@ -531,13 +535,12 @@
 
     function abrirEditarReunion(id, titulo, fechaHora, lineaId) {
       const select = document.getElementById('event-line-select');
-      select.innerHTML = lineasCache.map(l => `<option value="${l.id}" ${l.id === lineaId ? 'selected' : ''}>${l.titulo_linea}</option>`).join('');
+      select.innerHTML = lineasCache.map(l => `<option value="${l.id}" ${l.id === lineaId ? 'selected' : ''} data-meet="${l.enlace_meet || ''}">${l.titulo_linea}</option>`).join('');
       document.getElementById('event-edit-id').value = id;
       document.getElementById('event-modal-title').textContent = 'Editar Reunión';
       document.getElementById('event-title').value = titulo;
       
       if (fechaHora) {
-        // Corregir desfase horario al cargar en el input datetime-local
         const localDate = new Date(fechaHora);
         const year = localDate.getFullYear();
         const month = String(localDate.getMonth() + 1).padStart(2, '0');
@@ -558,12 +561,13 @@
       const id = document.getElementById('event-edit-id').value;
       const titulo = document.getElementById('event-title').value.trim();
       const fechaHoraLocal = document.getElementById('event-datetime').value;
-      const lineaId = document.getElementById('event-line-select').value;
+      const selectLinea = document.getElementById('event-line-select');
+      const lineaId = selectLinea.value;
       const emailsList = document.getElementById('event-emails').value.trim();
 
       if (!titulo || !fechaHoraLocal) { alert('Rellena el título y la fecha.'); return; }
 
-      // Ajustar la fecha seleccionada en España a formato UTC correcto para Supabase
+      // Conversión limpia de hora local a UTC exacto sin desfases de servidor
       const fechaIsoUtc = new Date(fechaHoraLocal).toISOString();
 
       if (id) {
@@ -582,11 +586,11 @@
       const endISO = endDate.toISOString().replace(/-|:|\.\d\d\d/g,"");
       
       const lineaObj = lineasCache.find(l => l.id === lineaId);
-      const meetLink = lineaObj ? (lineaObj.enlace_meet || '') : '';
+      const meetLink = lineaObj ? (lineaObj.enlace_meet || 'https://meet.google.com/ixo-bpxh-mhg') : 'https://meet.google.com/ixo-bpxh-mhg';
       const nombreLinea = lineaObj ? lineaObj.titulo_linea : '';
 
       const tituloCompletoGcal = `${titulo} (${nombreLinea})`;
-      const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(tituloCompletoGcal)}&dates=${startISO}/${endISO}&details=${encodeURIComponent('Enlace de Meet: ' + meetLink)}&add=${encodeURIComponent(emailsList)}`;
+      const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(tituloCompletoGcal)}&dates=${startISO}/${endISO}&details=${encodeURIComponent('Enlace de Meet: ' + meetLink)}&location=${encodeURIComponent(meetLink)}&add=${encodeURIComponent(emailsList)}`;
       window.open(gcalUrl, '_blank');
     }
 
