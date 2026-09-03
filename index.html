@@ -172,7 +172,7 @@
 
   <div class="modal-overlay" id="history-modal">
     <div class="modal">
-      <h3 id="history-title">Historial de Actualizaciones</h3>
+      <h3>Historial de Actualizaciones</h3>
       <div id="history-content" class="history-list"><p style="color: var(--text-muted); font-size: 0.9rem;">Cargando...</p></div>
       <div class="modal-actions"><button class="btn" onclick="cerrarHistorial()">Cerrar</button></div>
     </div>
@@ -202,7 +202,7 @@
       <div class="form-group"><label>Asociar a Línea</label><select id="event-line-select"></select></div>
       <div class="form-group">
         <label>Emails para sincronización automática (separados por coma)</label>
-        <input type="text" id="event-emails" value="pmanuben@ucm.es, josea@ucm.es">
+        <input type="text" id="event-emails" value="abelsanchez@bio.ucm.es, cctapia@ucm.es, gonzaapa@ucm.es, josea@ucm.es, pmanuben@ucm.es, serbiodh@gmail.com, tymartin@ucm.es">
       </div>
       <div class="modal-actions">
         <button class="btn" onclick="cerrarCrearReunion()">Cancelar</button>
@@ -312,7 +312,7 @@
 
         let botonEditar = '';
         if (sesionActiva) {
-          botonEditar = `<button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;" onclick="abrirEdit('${linea.id}', '${escapeQuotes(linea.nombre_investigador)}', '${escapeQuotes(linea.titulo_linea)}', '${linea.estado_actual}', '${linea.enlace_meet || ''}', '${escapeQuotes(linea.enlace_drive || 'https://meet.google.com/ixo-bpxh-mhg')}', ${linea.numero_linea})">Editar</button>`;
+          botonEditar = `<button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;" onclick="abrirEdit('${linea.id}', '${escapeQuotes(linea.nombre_investigador)}', '${escapeQuotes(linea.titulo_linea)}', '${linea.estado_actual}', '${linea.enlace_meet || ''}', '${escapeQuotes(linea.enlace_drive || 'https://drive.google.com/')}', ${linea.numero_linea})">Editar</button>`;
         }
 
         let reunionHTML = `<span class="no-meeting">Sin reunión próxima</span>`;
@@ -322,7 +322,7 @@
           reunionHTML = `<a href="${linea.enlace_meet || '#'}" target="_blank" class="next-meeting-info" title="${proximaReunion.titulo}">📌 ${fechaFmt}</a>`;
         }
 
-        const enlaceDrive = linea.enlace_drive || 'https://meet.google.com/ixo-bpxh-mhg';
+        const enlaceDrive = linea.enlace_drive || 'https://drive.google.com/';
         const colorLinea = obtenerColorLinea(linea.numero_linea);
 
         const card = document.createElement('article');
@@ -378,7 +378,6 @@
         return;
       }
 
-      // Todos los usuarios logueados pueden borrar notas
       const puedeBorrar = sesionActiva;
       content.innerHTML = data.map(nota => {
         const fechaObjLocal = new Date(nota.fecha);
@@ -403,7 +402,6 @@
       if (!confirm('¿Borrar esta actualización?')) return;
       await clienteSupabase.from('bitacora').delete().eq('id', notaId);
       
-      // Comprobar si quedan más notas en el historial para actualizar la tarjeta principal
       const { data } = await clienteSupabase.from('bitacora').select('*').eq('linea_id', lineaId).order('fecha', { ascending: false });
       let nuevaUltimaNota = '';
       if (data && data.length > 0) {
@@ -479,7 +477,6 @@
         return;
       }
 
-      // Todos los usuarios logueados pueden modificar/borrar reuniones
       const puedeGestionar = sesionActiva;
       lista.innerHTML = data.map(rev => {
         const fechaObj = new Date(rev.fecha_hora);
@@ -491,7 +488,9 @@
         const endDate = new Date(fechaObj.getTime() + 60*60*1000);
         const endISO = endDate.toISOString().replace(/-|:|\.\d\d\d/g,"");
         
-        const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(rev.titulo)}&dates=${startISO}/${endISO}&details=${encodeURIComponent('Enlace de Meet: ' + (lineaInfo.enlace_meet || ''))}&add=pmanuben@ucm.es,josea@ucm.es`;
+        const tituloCompletoGcal = `${rev.titulo} (${lineaInfo.titulo_linea})`;
+        const emailsPorDefecto = "abelsanchez@bio.ucm.es,cctapia@ucm.es,gonzaapa@ucm.es,josea@ucm.es,pmanuben@ucm.es,serbiodh@gmail.com,tymartin@ucm.es";
+        const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(tituloCompletoGcal)}&dates=${startISO}/${endISO}&details=${encodeURIComponent('Enlace de Meet: ' + (lineaInfo.enlace_meet || ''))}&add=${emailsPorDefecto}`;
 
         let botonesAccion = `<a href="${gcalUrl}" target="_blank" class="btn-sync-cal" title="Añadir a Google Calendar">📅 Sincronizar GCal</a>`;
 
@@ -536,7 +535,20 @@
       document.getElementById('event-edit-id').value = id;
       document.getElementById('event-modal-title').textContent = 'Editar Reunión';
       document.getElementById('event-title').value = titulo;
-      document.getElementById('event-datetime').value = fechaHora ? fechaHora.slice(0, 16) : '';
+      
+      if (fechaHora) {
+        // Corregir desfase horario al cargar en el input datetime-local
+        const localDate = new Date(fechaHora);
+        const year = localDate.getFullYear();
+        const month = String(localDate.getMonth() + 1).padStart(2, '0');
+        const day = String(localDate.getDate()).padStart(2, '0');
+        const hours = String(localDate.getHours()).padStart(2, '0');
+        const minutes = String(localDate.getMinutes()).padStart(2, '0');
+        document.getElementById('event-datetime').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+      } else {
+        document.getElementById('event-datetime').value = '';
+      }
+      
       document.getElementById('new-event-modal').style.display = 'flex';
     }
 
@@ -545,31 +557,36 @@
     async function guardarReunion() {
       const id = document.getElementById('event-edit-id').value;
       const titulo = document.getElementById('event-title').value.trim();
-      const fechaHora = document.getElementById('event-datetime').value;
+      const fechaHoraLocal = document.getElementById('event-datetime').value;
       const lineaId = document.getElementById('event-line-select').value;
       const emailsList = document.getElementById('event-emails').value.trim();
 
-      if (!titulo || !fechaHora) { alert('Rellena el título y la fecha.'); return; }
+      if (!titulo || !fechaHoraLocal) { alert('Rellena el título y la fecha.'); return; }
+
+      // Ajustar la fecha seleccionada en España a formato UTC correcto para Supabase
+      const fechaIsoUtc = new Date(fechaHoraLocal).toISOString();
 
       if (id) {
-        await clienteSupabase.from('reuniones').update({ titulo, fecha_hora: fechaHora, linea_id: lineaId }).eq('id', id);
+        await clienteSupabase.from('reuniones').update({ titulo, fecha_hora: fechaIsoUtc, linea_id: lineaId }).eq('id', id);
       } else {
-        await clienteSupabase.from('reuniones').insert({ titulo, fecha_hora: fechaHora, linea_id: lineaId });
+        await clienteSupabase.from('reuniones').insert({ titulo, fecha_hora: fechaIsoUtc, linea_id: lineaId });
       }
 
       cerrarCrearReunion();
       abrirCalendario();
       cargarDatosCompletos();
 
-      const fechaObj = new Date(fechaHora);
+      const fechaObj = new Date(fechaIsoUtc);
       const startISO = fechaObj.toISOString().replace(/-|:|\.\d\d\d/g,"");
       const endDate = new Date(fechaObj.getTime() + 60*60*1000);
       const endISO = endDate.toISOString().replace(/-|:|\.\d\d\d/g,"");
       
       const lineaObj = lineasCache.find(l => l.id === lineaId);
       const meetLink = lineaObj ? (lineaObj.enlace_meet || '') : '';
+      const nombreLinea = lineaObj ? lineaObj.titulo_linea : '';
 
-      const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(titulo)}&dates=${startISO}/${endISO}&details=${encodeURIComponent('Enlace de Meet: ' + meetLink)}&add=${encodeURIComponent(emailsList)}`;
+      const tituloCompletoGcal = `${titulo} (${nombreLinea})`;
+      const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(tituloCompletoGcal)}&dates=${startISO}/${endISO}&details=${encodeURIComponent('Enlace de Meet: ' + meetLink)}&add=${encodeURIComponent(emailsList)}`;
       window.open(gcalUrl, '_blank');
     }
 
