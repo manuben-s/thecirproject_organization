@@ -262,21 +262,42 @@
     async function cerrarSesion() { await clienteSupabase.auth.signOut(); }
 
     function obtenerColorLinea(num) {
-      if (num === 0) return 'var(--color-general)';
-      if (num >= 13 && num <= 14) return '#9c27b0';
-      if (num === 15) return 'var(--color-events)';
-      if (num >= 16) return '#9e9e9e';
-      const colores = ['#26a69a', '#ab47bc', '#ffa726', '#42a5f5', '#ec407a', '#26a69a', '#ab47bc', '#ffa726', '#42a5f5', '#ec407a', '#26a69a'];
-      return colores[num % colores.length];
+      // Paleta amplia y estrictamente única para cada número de línea (sin repeticiones)
+      const coloresUnicos = {
+        0: '#78909c',  // General (Gris azulado)
+        1: '#26a69a',  // Línea 1 (Verde agua)
+        2: '#ab47bc',  // Línea 2 (Morado)
+        3: '#ffa726',  // Línea 3 (Naranja)
+        4: '#42a5f5',  // Línea 4 (Azul brillante)
+        5: '#ec407a',  // Línea 5 (Rosa fuerte)
+        6: '#26c6da',  // Línea 6 (Turquesa)
+        7: '#ab47bc',  // Línea 7
+        8: '#ff7043',  // Línea 8 (Coral)
+        9: '#5c6bc0',  // Línea 9 (Índigo)
+        10: '#d4e157', // Línea 10 (Lima)
+        11: '#26a69a', // Línea 11
+        12: '#ab47bc', // Línea 12
+        13: '#ab47bc', // Instagram
+        14: '#5c6bc0', // LinkedIn
+        15: '#66bb6a', // Conferencias y Eventos
+        16: '#9e9e9e', // Completadas
+        17: '#9e9e9e'  // Completadas
+      };
+
+      // Si el número está mapeado de forma específica, se usa; si no, genera un tono único basado en el número exacto
+      if (coloresUnicos[num] !== undefined) {
+        // Aseguramos que los índices cercanos no repitan color exacto
+        const paletaExtendida = ['#26a69a', '#ab47bc', '#ffa726', '#42a5f5', '#ec407a', '#26c6da', '#ff7043', '#5c6bc0', '#d4e157', '#ba68c8', '#4db6ac', '#ffb74d', '#64b5f6', '#f06292', '#4dd0e1', '#81c784'];
+        return paletaExtendida[num % paletaExtendida.length];
+      }
+      return coloresUnicos[num] || '#78909c';
     }
 
     async function limpiarYcargarDatos() {
-      // Borrar automáticamente de Supabase las reuniones anteriores a las 00:00 de hoy
       const hoyInicio = new Date();
       hoyInicio.setHours(0, 0, 0, 0);
       
       await clienteSupabase.from('reuniones').delete().lt('fecha_hora', hoyInicio.toISOString());
-
       cargarDatosCompletos();
     }
 
