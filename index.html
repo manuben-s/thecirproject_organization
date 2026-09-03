@@ -39,23 +39,20 @@
     
     .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
     
-    .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; height: 100%; transition: opacity 0.2s; }
+    /* La tarjeta ahora es limpia y actúa de acceso al diario al clicar en ella */
+    .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.2rem; height: 100%; transition: all 0.2s; cursor: pointer; }
+    .card:hover { border-color: #555; background: #232323; }
     .card.completed { opacity: 0.65; border-top-color: #555 !important; }
     
     .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
-    .card-title { font-size: 1.05rem; font-weight: 600; }
-    .researcher-name { font-size: 0.85rem; color: var(--text-muted); }
+    .card-title { font-size: 1.1rem; font-weight: 600; }
+    .researcher-name { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem; }
     
     .status-badge { font-size: 0.75rem; padding: 0.25rem 0.6rem; border-radius: 12px; font-weight: 600; white-space: nowrap; }
     .status-data { background-color: var(--status-data); color: var(--status-data-text); }
     .status-writing { background-color: var(--status-writing); color: var(--status-writing-text); }
     .status-review { background-color: var(--status-review); color: var(--status-review-text); }
     .status-sent { background-color: var(--status-sent-bg); color: var(--status-sent-text); border: 1px solid rgba(158,158,158,0.2); }
-    
-    .log-preview { background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; font-size: 0.85rem; border-left: 3px solid var(--text-muted); color: var(--text-muted); cursor: pointer; transition: background 0.2s; display: flex; flex-direction: column; flex-grow: 1; }
-    .log-preview:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
-    .log-text { margin: 6px 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; word-break: break-word; color: var(--text-main); }
-    .log-hint { font-size: 0.7rem; color: var(--text-muted); margin-top: auto; padding-top: 4px; }
     
     .card-actions { display: flex; gap: 0.4rem; margin-top: auto; align-items: center; flex-wrap: wrap; }
     .next-meeting-info { font-size: 0.75rem; color: #81c784; background: rgba(129, 199, 132, 0.1); padding: 0.3rem 0.5rem; border-radius: 4px; border: 1px solid rgba(129, 199, 132, 0.2); flex: 1; text-align: center; text-decoration: none; display: block; }
@@ -66,7 +63,7 @@
     .section-block h2 { margin-bottom: 1.5rem; font-size: 1.3rem; }
 
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 100; }
-    .modal { background: var(--modal-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+    .modal { background: var(--modal-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.5rem; width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
     .modal h3 { font-size: 1.2rem; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; }
     .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
     .form-group label { font-size: 0.85rem; color: var(--text-muted); }
@@ -79,17 +76,18 @@
     .event-date { font-size: 0.75rem; color: var(--text-muted); }
     .event-tag { font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 4px; display: inline-block; width: fit-content; font-weight: bold; color: #121212; }
     
+    /* Diario / Historial limpio y conciso */
     .history-list { display: flex; flex-direction: column; gap: 1rem; }
-    .history-item { padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
-    .history-item:last-child { border-bottom: none; }
+    .history-item { background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 6px; border-left: 3px solid #81c784; }
     .history-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.4rem; }
-    .btn-delete { background: transparent; border: 1px solid #ef5350; color: #ef5350; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; cursor: pointer; }
+    .btn-delete { background: transparent; border: 1px solid #ef5350; color: #ef5350; border-radius: 4px; padding: 0.15rem 0.4rem; font-size: 0.7rem; cursor: pointer; }
     .btn-delete:hover { background: rgba(239, 83, 80, 0.1); }
+    .history-text { font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; color: var(--text-main); }
+    
     .btn-edit-event { background: transparent; border: 1px solid #42a5f5; color: #42a5f5; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; cursor: pointer; }
     .btn-edit-event:hover { background: rgba(66, 165, 245, 0.1); }
     .btn-sync-cal { background: rgba(66, 165, 245, 0.15); border: 1px solid #42a5f5; color: #90caf9; border-radius: 4px; padding: 0.2rem 0.5rem; font-size: 0.75rem; text-decoration: none; display: inline-block; }
     .btn-sync-cal:hover { background: rgba(66, 165, 245, 0.3); }
-    .history-text { font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; }
   </style>
 </head>
 <body>
@@ -162,7 +160,7 @@
       </div>
       <div class="form-group"><label>Enlace de Meet</label><input type="text" id="edit-meet"></div>
       <div class="form-group"><label>Enlace de Google Drive</label><input type="text" id="edit-drive"></div>
-      <div class="form-group"><label>Añadir nueva nota a la Bitácora</label><textarea id="edit-log" rows="4" placeholder="Escribe tu actualización..."></textarea></div>
+      <div class="form-group"><label>Añadir nueva nota al Diario de Bitácora</label><textarea id="edit-log" rows="4" placeholder="Escribe tu actualización..."></textarea></div>
       <div class="modal-actions">
         <button class="btn" onclick="cerrarEdit()">Cancelar</button>
         <button class="btn btn-primary" onclick="guardarCambios()">Guardar</button>
@@ -170,11 +168,21 @@
     </div>
   </div>
 
+  <!-- Modal DIARIO / HISTORIAL -->
   <div class="modal-overlay" id="history-modal">
-    <div class="modal">
-      <h3>Historial de Actualizaciones</h3>
-      <div id="history-content" class="history-list"><p style="color: var(--text-muted); font-size: 0.9rem;">Cargando...</p></div>
-      <div class="modal-actions"><button class="btn" onclick="cerrarHistorial()">Cerrar</button></div>
+    <div class="modal" style="max-width: 600px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+        <h3 id="history-title" style="border: none; margin: 0; padding: 0;">📖 Diario de la Línea</h3>
+        <button class="btn btn-primary" id="btn-abrir-editar-desde-diario" style="font-size: 0.8rem; display: none;" onclick="saltarAEdicionDesdeDiario()">+ Añadir Entrada</button>
+      </div>
+      
+      <div id="history-content" class="history-list" style="max-height: 400px; overflow-y: auto;">
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Cargando diario...</p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn" onclick="cerrarHistorial()">Cerrar</button>
+      </div>
     </div>
   </div>
 
@@ -222,6 +230,8 @@
     let lineasCache = [];
     let reunionesCache = [];
     let filtroActual = 'todas';
+    let lineaActualIdParaDiario = '';
+    let lineaActualObjParaDiario = null;
 
     clienteSupabase.auth.onAuthStateChange((event, session) => {
       sesionActiva = !!session;
@@ -313,14 +323,14 @@
 
         let botonEditar = '';
         if (sesionActiva) {
-          botonEditar = `<button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;" onclick="abrirEdit('${linea.id}', '${escapeQuotes(linea.nombre_investigador)}', '${escapeQuotes(linea.titulo_linea)}', '${linea.estado_actual}', '${linea.enlace_meet || ''}', '${escapeQuotes(linea.enlace_drive || 'https://drive.google.com/')}', ${linea.numero_linea})">Editar</button>`;
+          botonEditar = `<button class="btn btn-primary" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;" onclick="event.stopPropagation(); abrirEdit('${linea.id}', '${escapeQuotes(linea.nombre_investigador)}', '${escapeQuotes(linea.titulo_linea)}', '${linea.estado_actual}', '${linea.enlace_meet || ''}', '${escapeQuotes(linea.enlace_drive || 'https://drive.google.com/')}', ${linea.numero_linea})">Editar</button>`;
         }
 
         let reunionHTML = `<span class="no-meeting">Sin reunión próxima</span>`;
         if (proximaReunion) {
           const fechaObjLocal = new Date(proximaReunion.fecha_hora);
           const fechaFmt = fechaObjLocal.toLocaleString('es-ES', { timeZone: 'Europe/Madrid', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
-          reunionHTML = `<a href="${linea.enlace_meet || '#'}" target="_blank" class="next-meeting-info" title="${proximaReunion.titulo}">📌 ${fechaFmt}</a>`;
+          reunionHTML = `<a href="${linea.enlace_meet || '#'}" target="_blank" class="next-meeting-info" onclick="event.stopPropagation()" title="${proximaReunion.titulo}">📌 ${fechaFmt}</a>`;
         }
 
         const enlaceDrive = linea.enlace_drive || 'https://drive.google.com/';
@@ -329,6 +339,9 @@
         const card = document.createElement('article');
         card.className = `card ${esCompletada ? 'completed' : ''}`;
         card.style.borderTop = `4px solid ${colorLinea}`;
+        // Al hacer clic en cualquier parte de la tarjeta se abre el Diario de Bitácora
+        card.onclick = () => abrirHistorial(linea.id, linea.titulo_linea);
+        
         card.innerHTML = `
           <div class="card-header">
             <div>
@@ -337,16 +350,10 @@
             </div>
             ${badgeHTML}
           </div>
-          
-          <div class="log-preview" onclick="abrirHistorial('${linea.id}', '${escapeQuotes(linea.titulo_linea)}')">
-            <strong>Última actualización:</strong>
-            <div class="log-text">${linea.ultima_actualizacion || ''}</div>
-            <div class="log-hint">👉 Clic para ver el historial</div>
-          </div>
 
           <div class="card-actions">
             ${reunionHTML}
-            <a href="${enlaceDrive}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;" title="Google Drive">📁 Drive</a>
+            <a href="${enlaceDrive}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;" onclick="event.stopPropagation()" title="Google Drive">📁 Drive</a>
             ${botonEditar}
           </div>
         `;
@@ -366,23 +373,29 @@
 
     function escapeQuotes(str) { return str ? str.replace(/'/g, "\\'").replace(/"/g, '&quot;') : ''; }
 
+    // DIARIO / HISTORIAL DE BITÁCORA
     async function abrirHistorial(id, titulo) {
-      document.getElementById('history-title').textContent = 'Historial: ' + titulo;
+      lineaActualIdParaDiario = id;
+      lineaActualObjParaDiario = lineasCache.find(l => l.id === id);
+
+      document.getElementById('history-title').textContent = '📖 Diario: ' + titulo;
       document.getElementById('history-modal').style.display = 'flex';
+      document.getElementById('btn-abrir-editar-desde-diario').style.display = sesionActiva ? 'block' : 'none';
+      
       const content = document.getElementById('history-content');
-      content.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Cargando historial...</p>';
+      content.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Cargando entradas...</p>';
 
       const { data } = await clienteSupabase.from('bitacora').select('*').eq('linea_id', id).order('fecha', { ascending: false });
       
       if (!data || data.length === 0) {
-        content.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No hay notas guardadas aún.</p>';
+        content.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem; text-align: center; padding: 1rem;">No hay entradas en el diario todavía.</p>';
         return;
       }
 
       const puedeBorrar = sesionActiva;
       content.innerHTML = data.map(nota => {
         const fechaObjLocal = new Date(nota.fecha);
-        const fechaFormat = fechaObjLocal.toLocaleString('es-ES', { timeZone: 'Europe/Madrid', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+        const fechaFormat = fechaObjLocal.toLocaleString('es-ES', { timeZone: 'Europe/Madrid', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
         let botonBorrar = puedeBorrar ? `<button class="btn-delete" onclick="borrarNota('${nota.id}', '${id}', '${escapeQuotes(titulo)}')">🗑️ Borrar</button>` : '';
 
         return `
@@ -399,17 +412,24 @@
     
     function cerrarHistorial() { document.getElementById('history-modal').style.display = 'none'; }
 
-    async function borrarNota(notaId, lineaId, titulo) {
-      if (!confirm('¿Borrar esta actualización?')) return;
-      await clienteSupabase.from('bitacora').delete().eq('id', notaId);
-      
-      const { data } = await clienteSupabase.from('bitacora').select('*').eq('linea_id', lineaId).order('fecha', { ascending: false });
-      let nuevaUltimaNota = '';
-      if (data && data.length > 0) {
-        nuevaUltimaNota = data[0].mensaje;
+    function saltarAEdicionDesdeDiario() {
+      cerrarHistorial();
+      if (lineaActualObjParaDiario) {
+        abrirEdit(
+          lineaActualObjParaDiario.id, 
+          escapeQuotes(lineaActualObjParaDiario.nombre_investigador), 
+          escapeQuotes(lineaActualObjParaDiario.titulo_linea), 
+          lineaActualObjParaDiario.estado_actual, 
+          lineaActualObjParaDiario.enlace_meet || '', 
+          escapeQuotes(lineaActualObjParaDiario.enlace_drive || 'https://drive.google.com/'), 
+          lineaActualObjParaDiario.numero_linea
+        );
       }
-      await clienteSupabase.from('lineas_investigacion').update({ ultima_actualizacion: nuevaUltimaNota }).eq('id', lineaId);
+    }
 
+    async function borrarNota(notaId, lineaId, titulo) {
+      if (!confirm('¿Borrar esta entrada del diario?')) return;
+      await clienteSupabase.from('bitacora').delete().eq('id', notaId);
       abrirHistorial(lineaId, titulo);
       cargarDatosCompletos();
     }
@@ -447,10 +467,6 @@
       const selectEstado = document.getElementById('edit-estado');
       if (selectEstado.style.display !== 'none') {
         updates.estado_actual = selectEstado.value;
-      }
-
-      if (nuevaNota !== "") {
-        updates.ultima_actualizacion = nuevaNota;
       }
 
       await clienteSupabase.from('lineas_investigacion').update(updates).eq('id', id);
@@ -493,7 +509,7 @@
         const tituloCompletoGcal = `${rev.titulo} (${lineaInfo.titulo_linea})`;
         const emailsPorDefecto = "abelsanchez@bio.ucm.es,cctapia@ucm.es,gonzaapa@ucm.es,josea@ucm.es,pmanuben@ucm.es,serbiodh@gmail.com,tymartin@ucm.es";
         
-        const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(tituloCompletoGcal)}&dates=${startISO}/${endISO}&details=${encodeURIComponent('Enlace Meet de la sala: ' + meetUsado)}&location=${encodeURIComponent(meetUsado)}&add=${emailsPorDefecto}`;
+        const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(tituloCompletoGcal)}&dates=${startISO}/${endISO}&details=${encodeURIComponent('Enlace de Meet: ' + meetUsado)}&location=${encodeURIComponent(meetUsado)}&add=${emailsPorDefecto}`;
 
         let botonesAccion = `<a href="${gcalUrl}" target="_blank" class="btn-sync-cal" title="Añadir a Google Calendar">📅 Sincronizar GCal</a>`;
 
@@ -512,7 +528,7 @@
               <span class="event-date">📅 ${fechaRev}</span>
             </div>
             <div style="display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap;">
-              <a href="${meetUsado}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;">🎥 Meet</a>
+              <a href="${meetUsado}" target="_blank" class="btn" style="font-size: 0.75rem; padding: 0.3rem 0.5rem;" onclick="event.stopPropagation()">🎥 Meet</a>
               ${botonesAccion}
             </div>
           </div>
@@ -530,7 +546,6 @@
       document.getElementById('event-modal-title').textContent = 'Agendar Nueva Reunión';
       document.getElementById('event-title').value = '';
       
-      // Fecha y hora por defecto: HOY a la hora actual (ajustado a España)
       const ahora = new Date();
       const year = ahora.getFullYear();
       const month = String(ahora.getMonth() + 1).padStart(2, '0');
@@ -539,9 +554,7 @@
       const minutes = String(ahora.getMinutes()).padStart(2, '0');
       document.getElementById('event-datetime').value = `${year}-${month}-${day}T${hours}:${minutes}`;
 
-      // Meet por defecto vuestro enlace concreto
       document.getElementById('event-meet-link').value = 'https://meet.google.com/ixo-bpxh-mhg?pli=1';
-
       document.getElementById('new-event-modal').style.display = 'flex';
     }
 
